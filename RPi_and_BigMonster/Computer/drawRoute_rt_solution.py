@@ -13,16 +13,17 @@ import tkinter as tk
 import os
 import shutil
 
+
 class graph():
     def __init__(self, xmin, xmax, ymin, ymax):
 
-        self.ser = serial.Serial('/dev/ttyUSB0', baudrate = 115200)
+        self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200)
         self.t = 0
         self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute2.txt', 'w')
         # 对整个图进行分区2列x4行
         self.subs = gridspec.GridSpec(2, 4)
-        self.fig = Figure(#facecolor = "black", 
-                          figsize = (20, 10))        #设定图大小20英寸x10英寸
+        self.fig = Figure(  #facecolor = "black",
+                          figsize=(20, 10))        #设定图大小20英寸x10英寸
         # 对图进行分割
         self.ax1 = self.fig.add_subplot(self.subs[0:, 1:-1])
         self.ax2 = self.fig.add_subplot(self.subs[0, 0], projection='polar')
@@ -37,7 +38,7 @@ class graph():
         self.ax5.set_title("speed:total")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)     #lw is linewidth
-        self.std_route, = self.ax1.plot([], [], 'r-', lw=2)
+        self.std_route, = self.ax1.plot([], [], 'r.', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
@@ -57,7 +58,7 @@ class graph():
         self.std_fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_PointRoute.txt', 'r')
         self.database = self.std_fobj.readlines()[1:]
         # self.fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/route4.txt', 'r')     #this function will get the dir where the script is
-        
+
         self.ax2.set_ylim(0, 500)
         self.ax3.set_xlim(0, 500)
         self.ax3.set_ylim(-3000, 3000)
@@ -65,7 +66,6 @@ class graph():
         self.ax4.set_ylim(-3000, 3000)
         self.ax5.set_xlim(0, 500)
         self.ax5.set_ylim(0, 3000)
-        
 
     def init(self):         # 动画初始化
         for item in self.database:
@@ -113,17 +113,18 @@ class graph():
                     self.Speed_display.set_text('Speed = %.2f' % self.Speed)
             # if frames == self.database[-1]:
                 # input()
-            yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed   #一定要有这个生成器
+                yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
+            #一定要有这个生成器
 
     def func(self, generator):      #绘图函数
-    # expand ax_x when t is larger than xlim
+        # expand ax_x when t is larger than xlim
         # self.database = self.fobj.readlines()
         self.min, self.max = self.ax3.get_xlim()
         if self.t >= self.max:
-            self.ax2.set_ylim(self.min, self.max + 100)
-            self.ax3.set_xlim(self.min, self.max + 100)
-            self.ax4.set_xlim(self.min, self.max + 100)
-            self.ax5.set_xlim(self.min, self.max + 100)
+            self.ax2.set_ylim(self.min + 100, self.max + 100)
+            self.ax3.set_xlim(self.min + 100, self.max + 100)
+            self.ax4.set_xlim(self.min + 100, self.max + 100)
+            self.ax5.set_xlim(self.min + 100, self.max + 100)
             self.ax2.figure.canvas.draw()
             self.ax3.figure.canvas.draw()
             self.ax4.figure.canvas.draw()
@@ -137,15 +138,15 @@ class graph():
         return self.route, self.angle, self.speed_x, self.speed_y, self.speed, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
     def drawAni(self):
-        self.draw = animation.FuncAnimation(self.fig, self.func, init_func = self.init, blit = True, interval = 30, repeat = False)
+        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=True, interval=0, repeat=False)
         #the class is class matplotlib.animation.FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, **kwargs)
         #and it will exicute func per interval(ms)  and #frames is func's arg!!!#
 
 
 class GUIsetting(graph):        #建立GUI设置类（以网络适配器配置类为基类）
-    def __init__(self, xmin, xmax, ymin, ymax, parent = None):        #构造函数
+    def __init__(self, xmin, xmax, ymin, ymax, parent=None):        #构造函数
         graph.__init__(self, xmin, xmax, ymin, ymax)        #调用基类构造函数
-        self.top = tk.Frame(parent)        #设置父元素窗口 
+        self.top = tk.Frame(parent)        #设置父元素窗口
         self.top.pack()        #打包父元素
         self.canvas = FigureCanvasTkAgg(self.fig, self.top)
         self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.top)
@@ -153,30 +154,41 @@ class GUIsetting(graph):        #建立GUI设置类（以网络适配器配置�
 
     def make_widgets(self):     #配置函数
         self.canvas.show()
-        self.canvas.get_tk_widget().pack(side = tk.BOTTOM, fill = tk.BOTH, expand = True)
+        self.canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
         self.toolbar.update()
-        self.canvas._tkcanvas.pack(side = tk.BOTTOM, fill = tk.BOTH, expand = True)
-        tk.Label(self.top, text = 'Cart console').pack(side = tk.TOP)       #介绍信息
-        tk.Button(self.top, text = 'save PointRoute', command = self.clear).pack(side = tk.BOTTOM)      #设置查看当前ip按钮并定位
+        self.canvas._tkcanvas.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
+        tk.Label(self.top, text='Cart console').pack(side=tk.TOP)       #介绍信息
+        tk.Button(self.top, text='save PointRoute', command=self.saveroute).pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True, anchor=tk.W)      #设置查看当前ip按钮并定位
+        # tk.Button(self.top, text='open serial port', command=self.openserport).pack(side=tk.LEFT)
+        # tk.Button(self.top, text='close serial port', command=self.closeserport).pack(side=tk.LEFT)
 
-    def clear(self):
-        shutil.copyfile(os.path.split(os.path.realpath(__file__))[0]+'/PointRoute.txt', os.path.split(os.path.realpath(__file__))[0]+'/2.1_route5.txt')
+    def saveroute(self):
+        self.X_data
 
 figure = GUIsetting(-14000, 0, 0, 14000)
 figure.drawAni()
 figure.top.mainloop()
 
 
-#------------------journal-------------------#
-# problem:                                   #
-#   1. Can't do it real-time.                #
-#   2. Can't stop automaticly.               #
-#   3. need to excicute two process manually.#
-#   4. ugly.                                 #
-#                                            #
-#-----------------2016.1.31------------------#
+#----------------------journal-----------------------#
+# problem:                                           #
+#   1. Can't do it real-time.                        #
+#   2. Can't stop automaticly.                       #
+#   3. need to excicute two process manually.        #
+#   4. ugly.                                         #
+#                                                    #
+#---------------------2016.1.31----------------------#
 
-#------------real-time solution--------------#
-# A. put readline() method into generator    #
-# B. read as many lines as you can at a time #
-#--------------------------------------------#
+#----------------real-time solution------------------#
+# A. put readline() method into generator(done)      #
+# B. read as many lines as you can at a time         #
+#----------------------------------------------------#
+
+#----------------------journal-----------------------#
+# problem:                                           #
+#   1. Can't stop automaticly.                       #
+#   2. Program will be block when no data send.      #
+#   3. Ugly.                                         #
+#   4. Need to run it using thread programming.      #
+#                                                    #
+#----------------------2016.2.1----------------------#

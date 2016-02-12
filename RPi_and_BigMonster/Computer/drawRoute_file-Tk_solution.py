@@ -35,7 +35,7 @@ class graph():
         self.ax5.set_title("speed:total")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)  # lw is linewidth
-        self.std_route, = self.ax1.plot([], [], 'r-', lw=2)
+        self.std_route, = self.ax1.plot([], [], 'r.', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
@@ -44,8 +44,7 @@ class graph():
         self.ax1.set_xlim(xmin, xmax)
         self.ax1.set_ylim(ymin, ymax)
         # 对各图数据初始化
-        self.std_X_data, self.std_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [
-        ], [], [], [], [], [], [], [], []
+        self.std_X_data, self.std_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], []
         self.t = 0
         # 设定各图实时数据位置
         self.Angle_display = self.ax1.text(-13900, 13700, '')
@@ -164,7 +163,7 @@ class graph():
 
     def drawAni(self):
         self.draw = animation.FuncAnimation(
-            self.fig, self.func, init_func=self.init, blit=True, interval=0, repeat=False)
+            self.fig, self.func, init_func=self.init, blit=True, interval=30, repeat=False)
         # the class is class matplotlib.animation.FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, **kwargs)
         # and it will exicute func per interval(ms)  and #frames is func's
         # arg!!!#
