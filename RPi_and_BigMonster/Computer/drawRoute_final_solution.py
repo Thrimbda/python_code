@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# @Author: Macpotty
+# @Date:   2016-02-14 11:39:07
+# @Last Modified by:   michael
+# @Last Modified time: 2016-02-16 15:33:30
 import matplotlib
 matplotlib.use('TkAgg')
 import numpy as np
@@ -13,10 +19,10 @@ import os
 import threading
 
 
-class graph():
+class Graph():
     def __init__(self, xmin, xmax, ymin, ymax):
 
-        self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200)
+        self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=1)
         self.t = 0
         self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute2.txt', 'w')
         # 对整个图进行分区2列x4行
@@ -48,6 +54,7 @@ class graph():
         # 对各图数据初始化
         self.std_X_data, self.std_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], []
         self.t = 0
+        self.PointRoute = []
         # 设定各图实时数据位置
         self.Angle_display = self.ax1.text(-13900, 13700, '')
         self.Speed_X_display = self.ax3.text(250, 950, '')
@@ -65,6 +72,11 @@ class graph():
         self.ax4.set_ylim(-3000, 3000)
         self.ax5.set_xlim(0, 500)
         self.ax5.set_ylim(0, 3000)
+
+    def saveRoute(self):
+        self.PointRoute = list(zip(self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data))
+        for item in self.PointRoute:
+            self.fobj.write(self.PointRoute + '\n')
 
     def init(self):         # 动画初始化
         for item in self.database:
@@ -142,12 +154,12 @@ class graph():
         #and it will exicute func per interval(ms)  and #frames is func's arg!!!#
 
 
-class GUIsetting(graph):        #建立GUI设置类（以网络适配器配置类为基类）
-    def __init__(self, xmin, xmax, ymin, ymax, parent=None):        #构造函数
-        graph.__init__(self, xmin, xmax, ymin, ymax)        #调用基类构造函数
+class GUIsetting():        #建立GUI设置类（以网络适配器配置类为基类）
+    def __init__(self, parent=None):        #构造函数
         self.top = tk.Frame(parent)        #设置父元素窗口
         self.top.pack()        #打包父元素
-        self.canvas = FigureCanvasTkAgg(self.fig, self.top)
+        self.graph = Graph(-14000, 0, 0, 14000)
+        self.canvas = FigureCanvasTkAgg(self.graph.fig, self.top)
         self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.top)
         self.make_widgets()        #调用配置函数Figure
 
@@ -157,16 +169,23 @@ class GUIsetting(graph):        #建立GUI设置类（以网络适配器配置�
         self.toolbar.update()
         self.canvas._tkcanvas.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
         tk.Label(self.top, text='Cart console').pack(side=tk.TOP)       #介绍信息
-        tk.Button(self.top, text='save PointRoute', command=self.saveroute).pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True, anchor=tk.W)      #设置查看当前ip按钮并定位
-        # tk.Button(self.top, text='open serial port', command=self.openserport).pack(side=tk.LEFT)
+        tk.Button(self.top, text='save PointRoute', command=self.saveroute).pack(side=tk.LEFT, fill=tk.BOTH, anchor=tk.W)      #设置查看当前ip按钮并定位
+        tk.Button(self.top, text='Start', command=self.initgraph).pack(side=tk.LEFT)
         # tk.Button(self.top, text='close serial port', command=self.closeserport).pack(side=tk.LEFT)
 
     def saveroute(self):
-        self.X_data
+        self.t1 = threading.Thread(target=self.graph.saveRoute)
+        self.t1.start()
+
+    def initgraph(self):
+        self.t2 = threading.Thread(target=self.graph.drawAni)
+        self.t2.daemon = True
+        self.t2.start()
+
+
 if __name__ == '__main__':
-    figure = GUIsetting(-14000, 0, 0, 14000)
-    mt1 = threading.Thread(target=figure.drawAni())
-    mt2 = threading.Thread(target=figure.top.mainloop())
+    figure = GUIsetting()
+    figure.top.mainloop()
 
 
 #----------------------journal-----------------------#
