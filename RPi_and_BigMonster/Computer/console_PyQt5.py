@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   michael
-# @Last Modified time: 2016-02-17 17:23:16
+# @Last Modified time: 2016-02-17 17:35:49
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -20,7 +20,7 @@ import os
 import threading
 
 
-class Graph():
+class Graph(threading.Thread):
     def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):
 
         self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=1)
@@ -184,7 +184,7 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.vBox.addWidget(self.toolbar)
 
         self.startButton = QtWidgets.QPushButton('Start', self)
-        self.startButton.addAction(self.initgraph)
+        self.startButton.clicked.connect(self.initgraph)
         self.startButton.setToolTip('<b>click</b> to start ploting.')
         # self.startButton.resize(self.startButton.sizeHint())
         self.vBox.addWidget(self.startButton)
