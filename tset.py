@@ -3,23 +3,51 @@
 # @Author: Macpotty
 # @Date:   2016-02-14 10:34:46
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-02-14 17:14:45
+# @Last Modified time: 2016-02-17 09:46:43
 # Just a dynamic test program for learning.
-import threading
-import time
+from PyQt5.QtWidgets import (QToolTip, QMessageBox, QAction, QDesktopWidget, QApplication, QMainWindow)
+from PyQt5.QtGui import QFont, QIcon
+import sys
 
 
-def wait():
-    print("wait")
-    time.sleep(1)
-    return
+class Test(QMainWindow):
+    def __init__(self):
+        QMainWindow.__init__(self)
+        self.initUI()
+
+    def initUI(self):
+        QToolTip.setFont(QFont('Myriad Set'))
+        self.setToolTip('This is a <b>QWidget</b> widget')
+        exitAction = QAction(QIcon('exit.png'), '&Exit', self)
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(QApplication.quit)
+        self.statusBar().showMessage('Ready')
+        menubar = self.menuBar()
+        fileMenu = menubar.addMenu('&File')
+        fileMenu.addAction(exitAction)
+        self.resize(250, 150)
+        self.center()
+        self.setWindowTitle('Tooltips')
+        self.show()
+
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Message',
+            'Are you sure want to quit?', QMessageBox.Yes |
+            QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
 if __name__ == '__main__':
-    for i in range(10):
-        t = threading.Thread(target=wait)
-        t.start()
-
-    print("current has %d threads" % (threading.activeCount()-1))
-
-    for item in threading.enumerate():
-        print(item)
+    app = QApplication(sys.argv)
+    ex = Test()
+    sys.exit(app.exec_())
