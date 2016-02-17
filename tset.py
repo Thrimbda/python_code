@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-14 10:34:46
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-02-17 09:46:43
+# @Last Modified time: 2016-02-17 10:40:35
 # Just a dynamic test program for learning.
 from PyQt5.QtWidgets import (QToolTip, QMessageBox, QAction, QDesktopWidget, QApplication, QMainWindow)
 from PyQt5.QtGui import QFont, QIcon

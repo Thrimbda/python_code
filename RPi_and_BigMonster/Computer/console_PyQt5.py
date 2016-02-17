@@ -3,24 +3,25 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   michael
-# @Last Modified time: 2016-02-17 10:10:26
+# @Last Modified time: 2016-02-17 17:23:16
 import matplotlib
 matplotlib.use('Qt5Agg')
+from PyQt5 import QtGui, QtCore, QtWidgets
+import sys
 import numpy as np
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 # implement the default mpl key bindings
 from matplotlib.backend_bases import key_press_handler
 import serial
-from PyQt5 import QtGui, QtCore, QtWidgets
 import os
 import threading
 
 
 class Graph():
-    def __init__(self, xmin, xmax, ymin, ymax):
+    def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):
 
         self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=1)
         self.t = 0
@@ -28,7 +29,7 @@ class Graph():
         # 对整个图进行分区2列x4行
         self.subs = gridspec.GridSpec(2, 4)
         self.fig = Figure(  #facecolor = "black",
-                          figsize=(20, 10))        #设定图大小20英寸x10英寸
+                          figsize=(width, height), dpi=dpi)        #设定图大小20英寸x10英寸
         # 对图进行分割
         self.ax1 = self.fig.add_subplot(self.subs[0:, 1:-1])
         self.ax2 = self.fig.add_subplot(self.subs[0, 0], projection='polar')
@@ -149,37 +150,80 @@ class Graph():
         return self.route, self.angle, self.speed_x, self.speed_y, self.speed, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
     def drawAni(self):
-        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=True, interval=0, repeat=False)
+        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)
         #the class is class matplotlib.animation.FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, **kwargs)
         #and it will exicute func per interval(ms)  and #frames is func's arg!!!#
 
 
-class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以网络适配器配置类为基类）
+class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为基类）
     def __init__(self, parent=None):        #构造函数
-        QtWidgets.QMainWindow.__init__(self, parent=None)
+        QtWidgets.QMainWindow.__init__(self)
+        QtWidgets.QToolTip.setFont(QtGui.QFont('Myriad Set'))       #set text-font
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+        self.setWindowTitle('Console')
+        self.statusBar().showMessage('Good luck with adjusting!')
+
         self.menubar = self.menuBar()
+        self.menubar.addSeparator()
         self.file_menu = self.menubar.addMenu('&File')
         self.file_menu.addAction('&Quit', self.fileQuit,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
+        self.file_menu.addAction('&SavePoint', self.saveroute,
+                                 QtCore.Qt.CTRL + QtCore.Qt.Key_S)
+        self.help_menu = self.menubar.addMenu('&Help')
+        self.help_menu.addAction('About', self.aboutMessage)
 
-        self.graph = Graph(-14000, 0, 0, 14000)
-        self.setWindowTitle('Console')
-        self.init()        #调用配置函数Figure
+        self.main_widget = QtWidgets.QWidget(self)
+        self.vBox = QtWidgets.QVBoxLayout(self.main_widget)
 
+        self.graph = Graph(width=20, height=10, dpi=80)
+        self.canvas = FigureCanvasQTAgg(self.graph.fig)
+        self.toolbar = NavigationToolbar2QT(self.canvas, self)
+        self.vBox.addWidget(self.canvas)
+        self.vBox.addWidget(self.toolbar)
+
+        self.startButton = QtWidgets.QPushButton('Start', self)
+        self.startButton.addAction(self.initgraph)
+        self.startButton.setToolTip('<b>click</b> to start ploting.')
+        # self.startButton.resize(self.startButton.sizeHint())
+        self.vBox.addWidget(self.startButton)
+
+        self.main_widget.setFocus()
+        self.setCentralWidget(self.main_widget)
+        self.show()
+
+    def fileQuit(self):
+        sys.exit()
+
+    def aboutMessage(self):
+        QtWidgets.QMessageBox.about(self, 'About',
+                                    """©2016 XJTU Roboteam. All Rights Reserved. 
+This is a program for """)
+
+    def closeEvent(self, event):
+        reply = QtWidgets.QMessageBox.question(self,
+                                               'Message',
+                                               'Are you sure want to quit?',
+                                               QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                                               QtWidgets.QMessageBox.No)
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
     def saveroute(self):
-        self.t1 = threading.Thread(target=self.graph.saveRoute)
-        self.t1.start()
+        self.graph.saveRoute()
 
     def initgraph(self):
-        self.t2 = threading.Thread(target=self.graph.drawAni)
-        self.t2.daemon = True
-        self.t2.start()
+        self.graph.drawAni()
 
 
 if __name__ == '__main__':
-    figure = GUIsetting()
-    figure.top.mainloop()
+    qApp = QtWidgets.QApplication(sys.argv)
+    aw = GUIsetting()
+    sys.exit(qApp.exec_())
 
 
 #----------------------journal-----------------------#
@@ -204,3 +248,11 @@ if __name__ == '__main__':
 #   4. Need to run it using thread programming.      #
 #                                                    #
 #----------------------2016.2.1----------------------#
+
+#----------------------journal-----------------------#
+# updates:                                           #
+#   1. Embedded the plot into Qt5(used to be Tkinter)#
+#   2. Woring on complete the function               #
+#   3. Thread block problem still unhandled          #
+#                                                    #
+#---------------------2016.2.17----------------------#
