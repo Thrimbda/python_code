@@ -2,19 +2,19 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
-# @Last Modified by:   Macpotty
-# @Last Modified time: 2016-02-18 17:59:42
+# @Last Modified by:   michael
+# @Last Modified time: 2016-02-18 22:14:17
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
 import sys
 import numpy as np
-from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
+import matplotlib.cbook as cbook
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
 # implement the default mpl key bindings
-from matplotlib.backend_bases import key_press_handler
 import serial
 import os
 import threading
@@ -23,11 +23,11 @@ import threading
 class Graph():
     def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):
 
-        self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=0.01)
+        self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=0)
         self.t = 0
         # 对整个图进行分区2列x4行
         self.subs = gridspec.GridSpec(2, 4)
-        self.fig = Figure(  #facecolor = "black",
+        self.fig = plt.Figure(  #facecolor = "black",
                           figsize=(width, height), dpi=dpi)        #设定图大小20英寸x10英寸
         # 对图进行分割
         self.ax1 = self.fig.add_subplot(self.subs[0:, 1:-1])
@@ -35,6 +35,10 @@ class Graph():
         self.ax3 = self.fig.add_subplot(self.subs[1, 0])
         self.ax4 = self.fig.add_subplot(self.subs[0, -1])
         self.ax5 = self.fig.add_subplot(self.subs[1, -1])
+        # import image
+        self.imagefile = cbook.get_sample_data(os.path.split(os.path.realpath(__file__))[0]+'/map.png')
+        self.image = plt.imread(self.imagefile)
+        self.im = self.ax1.imshow(self.image)
         # 设定各子图标题
         self.ax1.set_title("Cart's route")
         self.ax2.set_title("Angle")
@@ -63,6 +67,12 @@ class Graph():
         # 打开文件
         self.std_fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_PointRoute.txt', 'r')
         self.database = self.std_fobj.readlines()[1:]
+        for item in self.database:
+            self.type, self.info = tuple(eval(item))
+            self.std_X, self.std_Y, self.std_A, self.std_Speed_X, self.std_Speed_Y, self.std_Speed = self.info
+            self.std_X_data.append(self.std_X)
+            self.std_Y_data.append(self.std_Y)
+        self.std_route.set_data(self.std_X_data, self.std_Y_data)
         # self.fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/route4.txt', 'r')     #this function will get the dir where the script is
 
         self.ax2.set_ylim(0, 500)
@@ -78,18 +88,7 @@ class Graph():
 
         self.thread = threading.Thread(target=self.data_gen)
 
-    def saveRoute(self):
-        self.PointRoute = list(zip(self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data))
-        for item in self.PointRoute:
-            self.fobj.write(str(item) + '\n')
-
     def init(self):         # 动画初始化
-        for item in self.database:
-            self.type, self.info = tuple(eval(item))
-            self.std_X, self.std_Y, self.std_A, self.std_Speed_X, self.std_Speed_Y, self.std_Speed = self.info
-            self.std_X_data.append(self.std_X)
-            self.std_Y_data.append(self.std_Y)
-        self.std_route.set_data(self.std_X_data, self.std_Y_data)
 
         self.route.set_data([], [])
         self.angle.set_data([], [])
@@ -108,11 +107,12 @@ class Graph():
 
     def generator(self):      # 数据迭代器
         while True:
-            self.t += 1
             self.serRead = self.ser.readline()
-            if self.serRead == 0:
-                pass
+            if self.serRead == b'':
+                self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed = None, None, None, None, None, None
+                yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
             else:
+                self.t += 1
                 try:
                     self.type, self.info = tuple(eval(self.ser.readline()))
                 except Exception:
@@ -248,9 +248,9 @@ This is a program for crat adjusting.""")
         try:
             self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute2.txt', 'w')
         except Exception:
-            pass
+            self.warning('failed open the file.')
         else:
-            self.PointRoute = list(zip(self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data))
+            self.PointRoute = list(zip(self.graph.X_data, self.graph.Y_data, self.graph.A_data, self.graph.Speed_X_data, self.graph.Speed_Y_data, self.graph.Speed_data))
             for item in self.PointRoute:
                 self.fobj.write(str(item) + '\n')
         finally:
@@ -260,6 +260,7 @@ This is a program for crat adjusting.""")
         if not self.plotFlag:
             self.plotFlag = True
             self.graph.animationInit()
+            self.statusBar().showMessage('plotting.')
         else:
             self.warning("already started!")
 
@@ -267,6 +268,7 @@ This is a program for crat adjusting.""")
         if self.plotFlag:
             self.plotFlag = False
             self.graph.animationStop()
+            self.statusBar().showMessage('stoped')
         else:
             pass
 
@@ -307,3 +309,15 @@ if __name__ == '__main__':
 #   3. Thread block problem still unhandled          #
 #                                                    #
 #---------------------2016.2.17----------------------#
+
+#----------------------journal-----------------------#
+# updates:                                           #
+#   1. After added timeout=0 arg into serial init th-#
+#      e thread block problem finnal solved. but the #
+#      program would still stuck after ploting began.#
+#   2. The problem above was because when no data re-#
+#      ceived program stuck into a endless loop of m-#
+#      ethod generatorself.                          #
+#   3. working on completing function                #
+#                                                    #
+#---------------------2016.2.18----------------------#
