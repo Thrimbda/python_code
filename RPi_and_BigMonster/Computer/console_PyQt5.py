@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
-# @Last Modified by:   michael
-# @Last Modified time: 2016-02-17 17:35:49
+# @Last Modified by:   Macpotty
+# @Last Modified time: 2016-02-18 17:59:42
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -20,12 +20,11 @@ import os
 import threading
 
 
-class Graph(threading.Thread):
+class Graph():
     def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):
 
-        self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=1)
+        self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=0.01)
         self.t = 0
-        self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute2.txt', 'w')
         # 对整个图进行分区2列x4行
         self.subs = gridspec.GridSpec(2, 4)
         self.fig = Figure(  #facecolor = "black",
@@ -44,7 +43,7 @@ class Graph(threading.Thread):
         self.ax5.set_title("speed:total")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)     #lw is linewidth
-        self.std_route, = self.ax1.plot([], [], 'r.', lw=2)
+        self.std_route, = self.ax1.plot([], [], 'r-', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
@@ -74,10 +73,15 @@ class Graph(threading.Thread):
         self.ax5.set_xlim(0, 500)
         self.ax5.set_ylim(0, 3000)
 
+        self.serRead = 0
+        self.fig.tight_layout()
+
+        self.thread = threading.Thread(target=self.data_gen)
+
     def saveRoute(self):
         self.PointRoute = list(zip(self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data))
         for item in self.PointRoute:
-            self.fobj.write(self.PointRoute + '\n')
+            self.fobj.write(str(item) + '\n')
 
     def init(self):         # 动画初始化
         for item in self.database:
@@ -99,34 +103,41 @@ class Graph(threading.Thread):
         self.Speed_display.set_text('')
         return self.std_route, self.route, self.angle, self.speed_x, self.Speed_X_display, self.speed_y, self.Angle_display, self.speed, self.Speed_Y_display, self.Speed_display
 
+    def data_gen(self):
+        self.type, self.info = tuple(eval(self.ser.readline()))
+
     def generator(self):      # 数据迭代器
         while True:
             self.t += 1
-            try:
-                self.type, self.info = tuple(eval(self.ser.readline()))
-            except Exception:
-                self.type = 'bad_datatype'
+            self.serRead = self.ser.readline()
+            if self.serRead == 0:
+                pass
             else:
-                if self.type == 'state':
-                    self.AP, self.AI, self.AD, self.DP, self.DI, self.DD = self.info
-                # ,self.End_X, self.End_Y, self.SpdMx, self.AimA
-                if self.type == 'postrure':
-                    self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed = self.info
-                    self.t_data.append(self.t)
-                    self.X_data.append(self.X)
-                    self.Y_data.append(self.Y)
-                    self.A_data.append(self.A)
-                    self.Speed_X_data.append(self.Speed_X)
-                    self.Speed_Y_data.append(self.Speed_Y)
-                    self.Speed_data.append(self.Speed)
-                    self.Angle_display.set_text('Angle = %.2f' % (self.A))
-                    self.Speed_X_display.set_text('Speed_X = %.2f' % self.Speed_X)
-                    self.Speed_Y_display.set_text('Speed_Y = %.2f' % self.Speed_Y)
-                    self.Speed_display.set_text('Speed = %.2f' % self.Speed)
-            # if frames == self.database[-1]:
-                # input()
-                yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
-            #一定要有这个生成器
+                try:
+                    self.type, self.info = tuple(eval(self.ser.readline()))
+                except Exception:
+                    self.type = 'bad_datatype'
+                else:
+                    if self.type == 'state':
+                        self.AP, self.AI, self.AD, self.DP, self.DI, self.DD = self.info
+                    # ,self.End_X, self.End_Y, self.SpdMx, self.AimA
+                    if self.type == 'postrure':
+                        self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed = self.info
+                        self.t_data.append(self.t)
+                        self.X_data.append(self.X)
+                        self.Y_data.append(self.Y)
+                        self.A_data.append(self.A)
+                        self.Speed_X_data.append(self.Speed_X)
+                        self.Speed_Y_data.append(self.Speed_Y)
+                        self.Speed_data.append(self.Speed)
+                        self.Angle_display.set_text('Angle = %.2f' % (self.A))
+                        self.Speed_X_display.set_text('Speed_X = %.2f' % self.Speed_X)
+                        self.Speed_Y_display.set_text('Speed_Y = %.2f' % self.Speed_Y)
+                        self.Speed_display.set_text('Speed = %.2f' % self.Speed)
+                # if frames == self.database[-1]:
+                    # input()
+                    yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
+                #一定要有这个生成器
 
     def func(self, generator):      #绘图函数
         # expand ax_x when t is larger than xlim
@@ -149,10 +160,14 @@ class Graph(threading.Thread):
 
         return self.route, self.angle, self.speed_x, self.speed_y, self.speed, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
-    def drawAni(self):
+    def animationInit(self):
         self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)
+        self.draw._start()      #somehow in PyQt5 method _start() dose execute automaticly, so I have to start it manuly.
         #the class is class matplotlib.animation.FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, **kwargs)
         #and it will exicute func per interval(ms)  and #frames is func's arg!!!#
+
+    def animationStop(self):
+        self.draw._stop()
 
 
 class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为基类）
@@ -167,15 +182,18 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.menubar = self.menuBar()
         self.menubar.addSeparator()
         self.file_menu = self.menubar.addMenu('&File')
-        self.file_menu.addAction('&Quit', self.fileQuit,
-                                 QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
+        # self.file_menu.addAction('&Real-time Plot', self.initgraph,
+                                 # QtCore.Qt.CTRL + QtCore.Qt.Key_R)
         self.file_menu.addAction('&SavePoint', self.saveroute,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_S)
+        self.file_menu.addAction('&Quit', self.fileQuit,
+                                 QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         self.help_menu = self.menubar.addMenu('&Help')
         self.help_menu.addAction('About', self.aboutMessage)
 
         self.main_widget = QtWidgets.QWidget(self)
         self.vBox = QtWidgets.QVBoxLayout(self.main_widget)
+        self.vBox.addStretch(1)
 
         self.graph = Graph(width=20, height=10, dpi=80)
         self.canvas = FigureCanvasQTAgg(self.graph.fig)
@@ -184,13 +202,20 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.vBox.addWidget(self.toolbar)
 
         self.startButton = QtWidgets.QPushButton('Start', self)
-        self.startButton.clicked.connect(self.initgraph)
-        self.startButton.setToolTip('<b>click</b> to start ploting.')
-        # self.startButton.resize(self.startButton.sizeHint())
+        self.startButton.clicked.connect(self.graphInit)
+        self.startButton.setToolTip('<b>click</b> to start plot.')
+        self.startButton.resize(self.startButton.sizeHint())
+        self.stopButton = QtWidgets.QPushButton('Stop', self)
+        self.stopButton.clicked.connect(self.graphStop)
+        self.stopButton.setToolTip('<b>click</b> to stop plot.')
+        self.stopButton.resize(self.stopButton.sizeHint())
         self.vBox.addWidget(self.startButton)
+        self.vBox.addWidget(self.stopButton)
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
+
+        self.plotFlag = False
         self.show()
 
     def fileQuit(self):
@@ -198,8 +223,8 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
 
     def aboutMessage(self):
         QtWidgets.QMessageBox.about(self, 'About',
-                                    """©2016 XJTU Roboteam. All Rights Reserved. 
-This is a program for """)
+                                    """©2016 XJTU Roboteam. All Rights Reserved. <br/>
+This is a program for crat adjusting.""")
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(self,
@@ -213,11 +238,37 @@ This is a program for """)
         else:
             event.ignore()
 
-    def saveroute(self):
-        self.graph.saveRoute()
+    def information(self, message, title='reminder'):
+        QtWidgets.QMessageBox.information(self, title, message)
 
-    def initgraph(self):
-        self.graph.drawAni()
+    def warning(self, message, title='Warning'):
+        QtWidgets.QMessageBox.warning(self, title, message)
+
+    def saveroute(self):
+        try:
+            self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute2.txt', 'w')
+        except Exception:
+            pass
+        else:
+            self.PointRoute = list(zip(self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data))
+            for item in self.PointRoute:
+                self.fobj.write(str(item) + '\n')
+        finally:
+            self.fobj.close()
+
+    def graphInit(self):
+        if not self.plotFlag:
+            self.plotFlag = True
+            self.graph.animationInit()
+        else:
+            self.warning("already started!")
+
+    def graphStop(self):
+        if self.plotFlag:
+            self.plotFlag = False
+            self.graph.animationStop()
+        else:
+            pass
 
 
 if __name__ == '__main__':

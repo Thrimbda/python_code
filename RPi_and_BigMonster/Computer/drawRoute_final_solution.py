@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-14 11:39:07
-# @Last Modified by:   michael
-# @Last Modified time: 2016-02-16 15:33:30
+# @Last Modified by:   Macpotty
+# @Last Modified time: 2016-02-18 16:30:40
 import matplotlib
 matplotlib.use('TkAgg')
 import numpy as np
-from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib.gridspec as gridspec
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
@@ -27,8 +27,9 @@ class Graph():
         self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute2.txt', 'w')
         # 对整个图进行分区2列x4行
         self.subs = gridspec.GridSpec(2, 4)
-        self.fig = Figure(  #facecolor = "black",
+        self.fig = plt.Figure(  #facecolor = "black",
                           figsize=(20, 10))        #设定图大小20英寸x10英寸
+        self.fig.tight_layout()
         # 对图进行分割
         self.ax1 = self.fig.add_subplot(self.subs[0:, 1:-1])
         self.ax2 = self.fig.add_subplot(self.subs[0, 0], projection='polar')
@@ -43,7 +44,7 @@ class Graph():
         self.ax5.set_title("speed:total")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)     #lw is linewidth
-        self.std_route, = self.ax1.plot([], [], 'r.', lw=2)
+        self.std_route, = self.ax1.plot([], [], 'r-w', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
