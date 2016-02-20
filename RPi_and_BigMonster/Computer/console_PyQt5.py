@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
-# @Last Modified by:   Macpotty
-# @Last Modified time: 2016-02-20 17:56:44
+# @Last Modified by:   michael
+# @Last Modified time: 2016-02-20 19:57:56
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -19,10 +19,37 @@ import os
 import platform
 
 
+class SerialCtl():
+    def __init__(self):
+        self.available_port = []
+        self.ser = None
+        self.serRead = b''
+
+    def serialInit(self, port):
+        try:
+            self.ser = serial.Serial(port, baudrate=115200, timeout=0)
+        except Exception:
+            return False
+        else:
+            return True
+
+    def getAvailablePort(self):
+        for i in range(10):
+            try:
+                s = serial.Serial(i)
+                self.available_port.append(i)
+                s.close()
+            except Exception:
+                pass
+
+    def readline(self):
+        return self.ser.readline()
+
+
 class Graph():
     def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):
-
-        self.serInitFlag = self.serialInit(0)
+        self.ser = SerialCtl()
+        self.serInitFlag = self.ser.serialInit(0)
         self.t = 0
         # 对整个图进行分区2列x4行
         self.subs = gridspec.GridSpec(2, 4)
@@ -81,30 +108,7 @@ class Graph():
         self.ax5.set_xlim(0, 500)
         self.ax5.set_ylim(0, 3000)
 
-        self.available_port = []
-        self.serRead = b''
-
         self.fig.tight_layout()
-
-    def serialInit(self, portnum):
-        try:
-            if platform.system() == 'Linux':
-                self.ser = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=0)
-            elif platform.system() == 'Windows':
-                self.ser = serial.Serial(portnum, baudrate=115200, timeout=0)
-        except Exception:
-            return False
-        else:
-            return True
-
-    def getAvailablePort(self):
-        for i in range(10):
-            try:
-                s = serial.Serial(i)
-                self.available_port.append(i)
-                s.close()
-            except Exception:
-                pass
 
     def calculator(self):
         if len(self.X_data) < 2:
@@ -131,7 +135,7 @@ class Graph():
     def generator(self):      # 数据迭代器
         while True:
             self.serRead = self.ser.readline()
-            if self.serRead == b'':
+            if self.ser.serRead == b'':
                 self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed = None, None, None, None, None, None
                 yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
                 # this yield is very importent. without it the program will get into a endless loop here.
@@ -231,10 +235,11 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.vBox.addWidget(self.canvas)
         self.vBox.addWidget(self.toolbar)
-
-        self.combo = QtWidgets.QComboBox(self)
-        for i in self.graph.available_port:
-            self.combo.addItem("COM"+str(i))
+        if platform.system == 'Windows':
+            self.combo = QtWidgets.QComboBox(self)
+            for i in self.graph.available_port:
+                self.combo.addItem("COM"+str(i))
+            self.hBox.addWidget(self.combo)
 
         self.startButton = QtWidgets.QPushButton('Start', self)
         self.startButton.clicked.connect(self.graphInit)
@@ -248,7 +253,6 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.clearButton.clicked.connect(self.graphClear)
         self.clearButton.setToolTip('<b>click</b> to clear the Figure.')
         self.clearButton.resize(self.clearButton.sizeHint())
-        self.hBox.addWidget(self.combo)
         self.hBox.addWidget(self.startButton)
         self.hBox.addWidget(self.stopButton)
         self.hBox.addWidget(self.clearButton)
@@ -265,12 +269,17 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
 
     def fileQuit(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
-            if self.saveEnsure('Are you sure want to quit?'):
+            if self.saveEnsure('Do you want to save data before exit?'):
+                self.graph.ser.ser.close()
                 sys.exit()
             else:
                 pass
         else:
-            sys.exit()
+            if self.actionEnsure('Are you sure want to quit?'):
+                self.graph.ser.ser.close()
+                sys.exit()
+            else:
+                pass
 
     def aboutMessage(self):
         QtWidgets.QMessageBox.about(self, 'About',
@@ -280,11 +289,13 @@ This is a program for cart adjusting. function completing.""")
     def closeEvent(self, event):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
             if self.saveEnsure('Do you want to save data before exit?'):
+                self.graph.ser.ser.close()
                 event.accept()
             else:
                 event.ignore()
         else:
             if self.actionEnsure('Are you sure want to quit?'):
+                self.graph.ser.ser.close()
                 event.accept()
             else:
                 event.ignore()
@@ -341,7 +352,7 @@ This is a program for cart adjusting. function completing.""")
 
     def graphInit(self):
         if not self.plottingFlag:
-            if self.graph.serialInit():
+            if self.graph.ser.serialInit():
                 self.graph.serInitFlag = True
                 self.plottingFlag = True
                 self.plotedFlag = True
