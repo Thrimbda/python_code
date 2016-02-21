@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
-# @Last Modified by:   michael
-# @Last Modified time: 2016-02-20 19:57:56
+# @Last Modified by:   Macpotty
+# @Last Modified time: 2016-02-21 09:52:41
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -18,12 +18,13 @@ import serial
 import os
 import platform
 
+pf = platform.system()
 
-class SerialCtl():
+
+class SerialCtl():      #serial Initialization
     def __init__(self):
         self.available_port = []
         self.ser = None
-        self.serRead = b''
 
     def serialInit(self, port):
         try:
@@ -33,11 +34,18 @@ class SerialCtl():
         else:
             return True
 
+    def serialClose(self):
+        self.ser.close()
+
     def getAvailablePort(self):
         for i in range(10):
             try:
-                s = serial.Serial(i)
-                self.available_port.append(i)
+                if pf == 'Windows:':
+                    s = serial.Serial(i)
+                    self.available_port.append('COM' + str(i))
+                elif pf == 'Linux':
+                    s = serial.Serial('/dev/ttyUSB' + str(i))
+                    self.available_port.append('/dev/ttyUSB' + str(i))
                 s.close()
             except Exception:
                 pass
@@ -49,7 +57,7 @@ class SerialCtl():
 class Graph():
     def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):
         self.ser = SerialCtl()
-        self.serInitFlag = self.ser.serialInit(0)
+        self.serRead = b''
         self.t = 0
         # 对整个图进行分区2列x4行
         self.subs = gridspec.GridSpec(2, 4)
@@ -100,18 +108,18 @@ class Graph():
         self.std_route.set_data(self.std_X_data, self.std_Y_data)
         # self.fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/route4.txt', 'r')     #this function will get the dir where the script is
 
-        self.ax2.set_ylim(0, 500)
-        self.ax3.set_xlim(0, 500)
+        self.ax2.set_ylim(0, 50)
+        self.ax3.set_xlim(0, 50)
         self.ax3.set_ylim(-3000, 3000)
-        self.ax4.set_xlim(0, 500)
+        self.ax4.set_xlim(0, 50)
         self.ax4.set_ylim(-3000, 3000)
-        self.ax5.set_xlim(0, 500)
+        self.ax5.set_xlim(0, 50)
         self.ax5.set_ylim(0, 3000)
 
         self.fig.tight_layout()
 
     def calculator(self):
-        if len(self.X_data) < 2:
+        if len(self.X_data) < 3:
             self.Speed_X = self.Speed_Y = self.Speed = 0
         else:
             self.Speed_X = (self.X_data[-1] - self.X_data[-2]) / (self.t_data[-1] - self.t_data[-2])
@@ -135,7 +143,7 @@ class Graph():
     def generator(self):      # 数据迭代器
         while True:
             self.serRead = self.ser.readline()
-            if self.ser.serRead == b'':
+            if self.serRead == b'':
                 self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed = None, None, None, None, None, None
                 yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
                 # this yield is very importent. without it the program will get into a endless loop here.
@@ -144,13 +152,14 @@ class Graph():
                     self.type, self.info = tuple(eval(self.serRead))
                 except Exception:
                     self.type = 'bad_datatype'
+                    print(self.type)
                 else:
                     if self.type == 'state':
                         self.AP, self.AI, self.AD, self.DP, self.DI, self.DD = self.info
                     # ,self.End_X, self.End_Y, self.SpdMx, self.AimA
-                    if self.type == 'postrure':
+                    if self.type == 'posture':
                         self.X, self.Y, self.A, self.t = self.info
-
+                        self.calculator()
                         self.t_data.append(self.t)
                         self.X_data.append(self.X)
                         self.Y_data.append(self.Y)
@@ -170,10 +179,10 @@ class Graph():
         # self.database = self.fobj.readlines()
         self.min, self.max = self.ax3.get_xlim()
         if self.t >= self.max:
-            self.ax2.set_ylim(self.min + 100, self.max + 100)
-            self.ax3.set_xlim(self.min + 100, self.max + 100)
-            self.ax4.set_xlim(self.min + 100, self.max + 100)
-            self.ax5.set_xlim(self.min + 100, self.max + 100)
+            self.ax2.set_ylim(self.min + 10, self.max + 10)
+            self.ax3.set_xlim(self.min + 10, self.max + 10)
+            self.ax4.set_xlim(self.min + 10, self.max + 10)
+            self.ax5.set_xlim(self.min + 10, self.max + 10)
             self.ax2.figure.canvas.draw()
             self.ax3.figure.canvas.draw()
             self.ax4.figure.canvas.draw()
@@ -188,11 +197,8 @@ class Graph():
         return self.route, self.angle, self.speed_x, self.speed_y, self.speed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
     def animationInit(self):
-        if self.serInitFlag:
-            self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)
-            self.draw._start()      #somehow in PyQt5 method _start() dosen't execute automaticly, so I have to start it manuly.
-        else:
-            print('Failed Init serial port.')
+        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)
+        self.draw._start()      #somehow in PyQt5 method _start() dosen't execute automaticly, so I have to start it manuly.
 
         #the class is class matplotlib.animation.FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, **kwargs)
         #and it will exicute func per interval(ms)  and #frames is func's arg!!!#
@@ -215,8 +221,6 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.menubar = self.menuBar()
         self.menubar.addSeparator()
         self.file_menu = self.menubar.addMenu('&File')
-        # self.file_menu.addAction('&Real-time Plot', self.initgraph,
-                                 # QtCore.Qt.CTRL + QtCore.Qt.Key_R)
         self.file_menu.addAction('&SavePoint', self.saveroute,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_S)
         self.file_menu.addAction('&Quit', self.fileQuit,
@@ -235,11 +239,15 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.vBox.addWidget(self.canvas)
         self.vBox.addWidget(self.toolbar)
-        if platform.system == 'Windows':
-            self.combo = QtWidgets.QComboBox(self)
-            for i in self.graph.available_port:
-                self.combo.addItem("COM"+str(i))
-            self.hBox.addWidget(self.combo)
+        self.combo = QtWidgets.QComboBox(self)
+        self.hBox.addWidget(self.combo)
+        self.checkModel()
+
+        self.serialButton = QtWidgets.QPushButton('Open', self)
+        self.serialButton.setCheckable(True)
+        self.serialButton.setToolTip('<b>click</b> to open/close a serial port.')
+        self.serialButton.resize(self.serialButton.sizeHint())
+        self.serialButton.clicked[bool].connect(self.serialOperation)
 
         self.startButton = QtWidgets.QPushButton('Start', self)
         self.startButton.clicked.connect(self.graphInit)
@@ -253,6 +261,7 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.clearButton.clicked.connect(self.graphClear)
         self.clearButton.setToolTip('<b>click</b> to clear the Figure.')
         self.clearButton.resize(self.clearButton.sizeHint())
+        self.hBox.addWidget(self.serialButton)
         self.hBox.addWidget(self.startButton)
         self.hBox.addWidget(self.stopButton)
         self.hBox.addWidget(self.clearButton)
@@ -264,19 +273,24 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.plottingFlag = False
         self.plotedFlag = False
         self.savedFlag = False      #unnecessary, But for readabiliy added it.
+        self.serInitFlag = 0
         self.show()
         # self.splash.finish()
+
+    def checkModel(self):
+        self.graph.ser.getAvailablePort()
+        for i in self.graph.ser.available_port:
+            self.combo.addItem(i)
+        self.port = str(self.combo.currentText())
 
     def fileQuit(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
             if self.saveEnsure('Do you want to save data before exit?'):
-                self.graph.ser.ser.close()
                 sys.exit()
             else:
                 pass
         else:
             if self.actionEnsure('Are you sure want to quit?'):
-                self.graph.ser.ser.close()
                 sys.exit()
             else:
                 pass
@@ -289,13 +303,11 @@ This is a program for cart adjusting. function completing.""")
     def closeEvent(self, event):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
             if self.saveEnsure('Do you want to save data before exit?'):
-                self.graph.ser.ser.close()
                 event.accept()
             else:
                 event.ignore()
         else:
             if self.actionEnsure('Are you sure want to quit?'):
-                self.graph.ser.ser.close()
                 event.accept()
             else:
                 event.ignore()
@@ -321,7 +333,7 @@ This is a program for cart adjusting. function completing.""")
                                                title,
                                                message,
                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                                               QtWidgets.QMessageBox.No)
+                                               QtWidgets.QMessageBox.Yes)
 
         if reply == QtWidgets.QMessageBox.Yes:
             return True
@@ -350,18 +362,35 @@ This is a program for cart adjusting. function completing.""")
         else:
             self.warning('No new data received!')
 
+    def serialOperation(self, pressed):
+        # try:
+        if pressed:
+            if self.graph.ser.serialInit(self.port):
+                self.serInitFlag = True
+                self.statusBar().showMessage('successful opened serial port.')
+                self.serialButton.setText('Close')
+            else:
+                self.warning('serial open error, please check if the model plugged in.')
+                self.serialButton.setChecked(False)
+                # self.serialButton.setText('Open')
+        else:
+            self.graph.ser.serialClose()
+            self.serInitFlag = False
+            self.serialButton.setText('Open')
+        # except Exception:
+            # self.warning('serial open error, please check if the model plugged in.')
+
     def graphInit(self):
-        if not self.plottingFlag:
-            if self.graph.ser.serialInit():
-                self.graph.serInitFlag = True
+        if self.serInitFlag:
+            if not self.plottingFlag:
                 self.plottingFlag = True
                 self.plotedFlag = True
                 self.graph.animationInit()
                 self.statusBar().showMessage('plotting.')
             else:
-                self.warning("Failed to open Serial Port. Please check your USB to TTL modle")
+                self.warning('already started!')
         else:
-            self.warning("already started!")
+            self.warning('Please open serial port first!')
 
     def graphStop(self):
         if self.plottingFlag:
@@ -373,20 +402,20 @@ This is a program for cart adjusting. function completing.""")
 
     def graphClear(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
+            if self.plottingFlag:
+                self.graphStop()
             if self.saveEnsure('Do you wish to save data before clear Figure?'):
                 self.graph.init()
                 self.plottingFlag = False
                 self.plotedFlag = False
-                self.savedFlag = True
+                self.savedFlag = False
             else:
                 pass
         else:
-            if self.plottingFlag:
-                self.graphStop()
             if self.actionEnsure('Are you sure wish to clear Figure?'):
                 self.graph.init()
                 self.plotedFlag = False
-                self.savedFlag = True
+                self.savedFlag = False
             else:
                 pass
 

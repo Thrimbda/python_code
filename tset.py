@@ -1,78 +1,64 @@
-from PyQt5 import QtCore
-import time
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+"""
+ZetCode PyQt5 tutorial
+
+This is a simple drag and
+drop example.
+
+author: Jan Bodnar
+website: zetcode.com
+last edited: January 2015
+"""
+
 import sys
+from PyQt5.QtWidgets import (QPushButton, QWidget,
+                             QLineEdit, QApplication)
 
 
-# Subclassing QThread
-# http://qt-project.org/doc/latest/qthread.html
-class AThread(QtCore.QThread):
+class Button(QPushButton):
 
-    def run(self):
-        count = 0
-        while count < 5:
-            time.sleep(1)
-            print("Increasing")
-            count += 1
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
 
-# Subclassing QObject and using moveToThread
-# http://blog.qt.digia.com/blog/2007/07/05/qthreads-no-longer-abstract
+        self.setAcceptDrops(True)
 
+    def dragEnterEvent(self, e):
 
-class SomeObject(QtCore.QObject):
+        if e.mimeData().hasFormat('text/plain'):
+            e.accept()
+        else:
+            e.ignore()
 
-    finished = QtCore.pyqtSignal()
+    def dropEvent(self, e):
 
-    def longRunning(self):
-        count = 0
-        while count < 5:
-            time.sleep(1)
-            print("Increasing")
-            count += 1
-        self.finished.emit()
-
-# Using a QRunnable
-# http://qt-project.org/doc/latest/qthreadpool.html
-# Note that a QRunnable isn't a subclass of QObject and therefore does
-# not provide signals and slots.
+        self.setText(e.mimeData().text())
 
 
-class Runnable(QtCore.QRunnable):
+class Example(QWidget):
 
-    def run(self):
-        count = 0
-        app = QtCore.QCoreApplication.instance()
-        while count < 5:
-            print("Increasing")
-            time.sleep(1)
-            count += 1
-        app.quit()
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+    def initUI(self):
+
+        edit = QLineEdit('', self)
+        edit.setDragEnabled(True)
+        edit.move(30, 65)
+
+        button = Button("Button", self)
+        button.move(190, 65)
+
+        self.setWindowTitle('Simple drag & drop')
+        self.setGeometry(300, 300, 300, 150)
 
 
-def usingQThread():
-    app = QtCore.QCoreApplication([])
-    thread = AThread()
-    thread.finished.connect(app.exit)
-    thread.start()
-    sys.exit(app.exec_())
+if __name__ == '__main__':
 
-def usingMoveToThread():
-    app = QtCore.QCoreApplication([])
-    objThread = QtCore.QThread()
-    obj = SomeObject()
-    obj.moveToThread(objThread)
-    obj.finished.connect(objThread.quit)
-    objThread.started.connect(obj.longRunning)
-    objThread.finished.connect(app.exit)
-    objThread.start()
-    sys.exit(app.exec_())
-
-def usingQRunnable():
-    app = QtCore.QCoreApplication([])
-    runnable = Runnable()
-    QtCore.QThreadPool.globalInstance().start(runnable)
-    sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    # usingQThread()
-    # usingMoveToThread()
-    usingQRunnable()
+    app = QApplication(sys.argv)
+    ex = Example()
+    ex.show()
+    app.exec_()
