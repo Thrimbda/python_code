@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   michael
-# @Last Modified time: 2016-02-22 17:52:25
+# @Last Modified time: 2016-02-22 19:42:24
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -163,6 +163,7 @@ class Graph():
                     if self.type == 'posture':
                         self.X, self.Y, self.A, self.t = self.info
                         self.calculator()
+                        print(self.info)
                         self.t_data.append(self.t)
                         self.X_data.append(self.X)
                         self.Y_data.append(self.Y)
@@ -408,7 +409,7 @@ This is a program for cart adjusting. function completing.""")
             if self.plottingFlag:
                 self.graphStop()
             if self.saveEnsure('Do you wish to save data before clear Figure?'):
-                self.graph.clear()
+                self.graph.fig.clf()
                 self.plottingFlag = False
                 self.plotedFlag = False
                 self.savedFlag = False
@@ -416,7 +417,8 @@ This is a program for cart adjusting. function completing.""")
                 pass
         else:
             if self.actionEnsure('Are you sure wish to clear Figure?'):
-                self.graph.claer()
+                del self.graph
+                self.graph = Graph(width=20, height=10, dpi=80)
                 self.plotedFlag = False
                 self.savedFlag = False
             else:
