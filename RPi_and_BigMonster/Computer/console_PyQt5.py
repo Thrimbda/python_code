@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
-# @Last Modified by:   Macpotty
-# @Last Modified time: 2016-02-21 09:52:41
+# @Last Modified by:   michael
+# @Last Modified time: 2016-02-22 17:52:25
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -119,7 +119,7 @@ class Graph():
         self.fig.tight_layout()
 
     def calculator(self):
-        if len(self.X_data) < 3:
+        if len(self.X_data) < 4:
             self.Speed_X = self.Speed_Y = self.Speed = 0
         else:
             self.Speed_X = (self.X_data[-1] - self.X_data[-2]) / (self.t_data[-1] - self.t_data[-2])
@@ -139,6 +139,9 @@ class Graph():
         # self.Speed_Y_display.set_text('')
         # self.Speed_display.set_text('')
         return self.std_route, self.route, self.angle, self.speed_x, self.speed_y, self.speed  #, self.Speed_X_display, self.Angle_display, self.Speed_Y_display, self.Speed_display
+
+    def clear(self):
+        self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data = [], [], [], [], [], []
 
     def generator(self):      # 数据迭代器
         while True:
@@ -405,7 +408,7 @@ This is a program for cart adjusting. function completing.""")
             if self.plottingFlag:
                 self.graphStop()
             if self.saveEnsure('Do you wish to save data before clear Figure?'):
-                self.graph.init()
+                self.graph.clear()
                 self.plottingFlag = False
                 self.plotedFlag = False
                 self.savedFlag = False
@@ -413,7 +416,7 @@ This is a program for cart adjusting. function completing.""")
                 pass
         else:
             if self.actionEnsure('Are you sure wish to clear Figure?'):
-                self.graph.init()
+                self.graph.claer()
                 self.plotedFlag = False
                 self.savedFlag = False
             else:
