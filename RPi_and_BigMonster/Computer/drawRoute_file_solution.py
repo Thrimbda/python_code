@@ -49,7 +49,7 @@ class graph():
         self.Speed_Y_display = self.ax4.text(250, 950, '')
         self.Speed_display = self.ax5.text(250, 950, '')
         # 打开测试用文件
-        self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute.txt', 'r')
+        self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/Route_blue.txt', 'r')
         self.type, self.state = tuple(eval(self.fobj.readline()))
         self.AP, self.AI, self.AD, self.DP, self.DI, self.DD = self.state
         # ,self.End_X, self.End_Y, self.SpdMx, self.AimA

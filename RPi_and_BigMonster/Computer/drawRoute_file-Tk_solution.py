@@ -57,7 +57,7 @@ class graph():
         self.database = self.std_fobj.readlines()[1:]
         # this function will get the dir where the script is
         self.fobj = open(
-            os.path.split(os.path.realpath(__file__))[0] + '/PointRoute.txt', 'r')
+            os.path.split(os.path.realpath(__file__))[0] + '/Route_blue.txt', 'r')
         # self.fobj = open('/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/PointRoute.txt', 'r')
         self.string = self.fobj.readline()
         while not self.string:
@@ -129,7 +129,7 @@ class graph():
         except Exception:
             pass
         if self.type == 'postrure':
-            self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed = self.info
+            self.X, self.Y, self.A, self.Speed = self.info
             self.A *= (np.pi / 180)
             self.t_data.append(self.t)
             self.X_data.append(self.X)

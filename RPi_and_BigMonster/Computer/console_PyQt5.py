@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
-# @Last Modified by:   michael
-# @Last Modified time: 2016-02-22 19:42:24
+# @Last Modified by:   Macpotty
+# @Last Modified time: 2016-02-23 22:15:24
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -91,7 +91,7 @@ class Graph():
         self.ax1.set_ylim(ymin, ymax)
         # 对各图数据初始化
         self.std_X_data, self.std_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], []
-        self.PointRoute = []
+        self.timeNode = []
         # 设定各图实时数据位置
         # self.Angle_display = self.ax1.text(-13900, 13700, '')
         # self.Speed_X_display = self.ax3.text(250, 950, '')
@@ -253,20 +253,25 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.serialButton.resize(self.serialButton.sizeHint())
         self.serialButton.clicked[bool].connect(self.serialOperation)
 
-        self.startButton = QtWidgets.QPushButton('Start', self)
-        self.startButton.clicked.connect(self.graphInit)
-        self.startButton.setToolTip('<b>click</b> to start plot.')
-        self.startButton.resize(self.startButton.sizeHint())
-        self.stopButton = QtWidgets.QPushButton('Stop', self)
-        self.stopButton.clicked.connect(self.graphStop)
-        self.stopButton.setToolTip('<b>click</b> to stop plot.')
-        self.stopButton.resize(self.stopButton.sizeHint())
+        self.plotButton = QtWidgets.QPushButton('Start', self)
+        self.plotButton.setCheckable(True)
+        self.plotButton.setToolTip('<b>click</b> to start/stop plot.')
+        self.plotButton.resize(self.plotButton.sizeHint())
+        self.plotButton.clicked[bool].connect(self.graphFunc)
+
+        self.recordButton = QtWidgets.QPushButton('Record', self)
+        self.recordButton.setToolTip('<b>click</b> to record time node.')
+        self.recordButton.resize(self.recordButton.sizeHint())
+        self.recordButton.clicked[bool].connect(self.timeNodeRecord)
+        self.timeNode = []
+
         self.clearButton = QtWidgets.QPushButton('Clear', self)
         self.clearButton.clicked.connect(self.graphClear)
         self.clearButton.setToolTip('<b>click</b> to clear the Figure.')
         self.clearButton.resize(self.clearButton.sizeHint())
+
         self.hBox.addWidget(self.serialButton)
-        self.hBox.addWidget(self.startButton)
+        self.hBox.addWidget(self.plotButton)
         self.hBox.addWidget(self.stopButton)
         self.hBox.addWidget(self.clearButton)
         self.vBox.addLayout(self.hBox)
@@ -351,20 +356,36 @@ This is a program for cart adjusting. function completing.""")
         QtWidgets.QMessageBox.warning(self, title, message)
 
     def saveroute(self):
-        if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
+        if len(self.timeNode) != 0:
             fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', os.path.split(os.path.realpath(__file__))[0])
             try:
                 with open(fname[0], 'w') as self.fobj:
-                    self.PointRoute = list(zip(self.graph.X_data, self.graph.Y_data, self.graph.A_data, self.graph.Speed_X_data, self.graph.Speed_Y_data, self.graph.Speed_data))
-                    for item in self.PointRoute:
-                        self.fobj.write('("posture",' + str(item) + ')' + '\n')
-                    self.information('successful saved.')
-                    self.plotedFlag = False
-                    self.savedFlag = True
+                    self.fobj.write("大车路径点记录：\n")
+                    for i in self.timeNode:
+                        if i == 0:
+                            self.fobj.write("第%d段路径用时%f秒" % (i+1), (self.timeNode[i]))
+                        else:
+                            self.fobj.write("第%d段路径用时%f秒" % (i+1), (self.timeNode[i]-self.timeNode[i-1]))
             except Exception:
                 self.warning('failed to open the file.')
         else:
-            self.warning('No new data received!')
+            self.warning('no time node recorded.')
+        #-----------------------------function below is for save point after plotting-----------------------------------------
+        # if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
+        #     fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', os.path.split(os.path.realpath(__file__))[0])
+        #     try:
+        #         with open(fname[0], 'w') as self.fobj:
+        #             self.PointRoute = list(zip(self.graph.X_data, self.graph.Y_data, self.graph.A_data, self.graph.Speed_X_data, self.graph.Speed_Y_data, self.graph.Speed_data))
+        #             for item in self.PointRoute:
+        #                 self.fobj.write('("posture",' + str(item) + ')' + '\n')
+        #             self.information('successful saved.')
+        #             self.plotedFlag = False
+        #             self.savedFlag = True
+        #     except Exception:
+        #         self.warning('failed to open the file.')
+        # else:
+        #     self.warning('No new data received!')
+        #----------------------------------------------------------------------------------------------------------------------
 
     def serialOperation(self, pressed):
         # try:
@@ -384,25 +405,20 @@ This is a program for cart adjusting. function completing.""")
         # except Exception:
             # self.warning('serial open error, please check if the model plugged in.')
 
-    def graphInit(self):
-        if self.serInitFlag:
-            if not self.plottingFlag:
+    def graphFunc(self, pressed):
+        if pressed:
+            if self.serInitFlag:
                 self.plottingFlag = True
                 self.plotedFlag = True
                 self.graph.animationInit()
                 self.statusBar().showMessage('plotting.')
             else:
-                self.warning('already started!')
+                self.warning('Please open serial port first!')
+                self.plotButton.setChecked(False)
         else:
-            self.warning('Please open serial port first!')
-
-    def graphStop(self):
-        if self.plottingFlag:
             self.plottingFlag = False
             self.graph.animationStop()
             self.statusBar().showMessage('stoped')
-        else:
-            pass
 
     def graphClear(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
@@ -423,6 +439,9 @@ This is a program for cart adjusting. function completing.""")
                 self.savedFlag = False
             else:
                 pass
+
+    def timeNodeRecord(self):
+        self.timeNode.append(self.graph.t_data[-1])
 
 if __name__ == '__main__':
     qApp = QtWidgets.QApplication(sys.argv)
