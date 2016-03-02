@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-02-23 22:15:24
+# @Last Modified time: 2016-03-02 19:59:43
 import matplotlib
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -158,10 +158,20 @@ class Graph():
                     print(self.type)
                 else:
                     if self.type == 'state':
-                        self.AP, self.AI, self.AD, self.DP, self.DI, self.DD = self.info
+                        try:
+                            self.AP, self.AI, self.AD, self.DP, self.DI, self.DD = self.info
+                        except Exception:
+                            self.type = 'bad_datatype'
+                            print(self.type)
+                    self.type = 'bad_datatype'
+                    print(self.type)
                     # ,self.End_X, self.End_Y, self.SpdMx, self.AimA
                     if self.type == 'posture':
-                        self.X, self.Y, self.A, self.t = self.info
+                        try:
+                            self.X, self.Y, self.A, self.t = self.info
+                        except Exception:
+                            self.type = 'bad_datatype'
+                            print(self.type)
                         self.calculator()
                         print(self.info)
                         self.t_data.append(self.t)
@@ -272,7 +282,7 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
 
         self.hBox.addWidget(self.serialButton)
         self.hBox.addWidget(self.plotButton)
-        self.hBox.addWidget(self.stopButton)
+        self.hBox.addWidget(self.recordButton)
         self.hBox.addWidget(self.clearButton)
         self.vBox.addLayout(self.hBox)
 
@@ -441,7 +451,10 @@ This is a program for cart adjusting. function completing.""")
                 pass
 
     def timeNodeRecord(self):
-        self.timeNode.append(self.graph.t_data[-1])
+        try:
+            self.timeNode.append(self.graph.t_data[-1])
+        except IndexError:
+            self.warning("Haven't plot yet.")
 
 if __name__ == '__main__':
     qApp = QtWidgets.QApplication(sys.argv)
