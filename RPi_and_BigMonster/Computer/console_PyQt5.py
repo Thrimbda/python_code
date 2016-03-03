@@ -3,22 +3,22 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-02 19:59:43
-import matplotlib
-matplotlib.use('Qt5Agg')
-from PyQt5 import QtGui, QtCore, QtWidgets
+# @Last Modified time: 2016-03-03 14:21:52
+import matplotlib       #绘图库
+matplotlib.use('Qt5Agg')        #qt5接口声明
+from PyQt5 import QtGui, QtCore, QtWidgets      #qt
 import sys
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import matplotlib.gridspec as gridspec
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT
+import matplotlib.pyplot as plt         #绘图模块
+import matplotlib.animation as animation        #动画模块
+import matplotlib.gridspec as gridspec          #分块模块
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT          #图接口以及工具库
 # implement the default mpl key bindings
-import serial
+import serial       #串口模块
 import os
 import platform
 
-pf = platform.system()
+pf = platform.system()      #识别当前工作环境
 
 
 class SerialCtl():      #serial Initialization
@@ -26,7 +26,7 @@ class SerialCtl():      #serial Initialization
         self.available_port = []
         self.ser = None
 
-    def serialInit(self, port):
+    def serialInit(self, port):     #串口模块初始化
         try:
             self.ser = serial.Serial(port, baudrate=115200, timeout=0)
         except Exception:
@@ -40,8 +40,8 @@ class SerialCtl():      #serial Initialization
     def getAvailablePort(self):
         for i in range(10):
             try:
-                if pf == 'Windows:':
-                    s = serial.Serial(i)
+                if pf == 'Windows':
+                    s = serial.Serial('COM' + str(i))
                     self.available_port.append('COM' + str(i))
                 elif pf == 'Linux':
                     s = serial.Serial('/dev/ttyUSB' + str(i))
@@ -152,39 +152,28 @@ class Graph():
                 # this yield is very importent. without it the program will get into a endless loop here.
             else:
                 try:
-                    self.type, self.info = tuple(eval(self.serRead))
+                    self.info = tuple(eval(self.serRead))
+                    print(self.info)
+                    if self.info[-1] != 1:
+                        raise Exception
                 except Exception:
                     self.type = 'bad_datatype'
                     print(self.type)
                 else:
-                    if self.type == 'state':
-                        try:
-                            self.AP, self.AI, self.AD, self.DP, self.DI, self.DD = self.info
-                        except Exception:
-                            self.type = 'bad_datatype'
-                            print(self.type)
-                    self.type = 'bad_datatype'
-                    print(self.type)
-                    # ,self.End_X, self.End_Y, self.SpdMx, self.AimA
-                    if self.type == 'posture':
-                        try:
-                            self.X, self.Y, self.A, self.t = self.info
-                        except Exception:
-                            self.type = 'bad_datatype'
-                            print(self.type)
-                        self.calculator()
-                        print(self.info)
-                        self.t_data.append(self.t)
-                        self.X_data.append(self.X)
-                        self.Y_data.append(self.Y)
-                        self.A_data.append(self.A)
-                        self.Speed_X_data.append(self.Speed_X)
-                        self.Speed_Y_data.append(self.Speed_Y)
-                        self.Speed_data.append(self.Speed)
-                        # self.Angle_display.set_text('Angle = %.2f' % (self.A))
-                        # self.Speed_X_display.set_text('Speed_X = %.2f' % self.Speed_X)
-                        # self.Speed_Y_display.set_text('Speed_Y = %.2f' % self.Speed_Y)
-                        # self.Speed_display.set_text('Speed = %.2f' % self.Speed)
+                    self.X, self.Y, self.A, self.t = self.info[0], self.info[1], self.info[2], self.info[3]
+                    self.calculator()
+                    print(self.info)
+                    self.t_data.append(self.t)
+                    self.X_data.append(self.X)
+                    self.Y_data.append(self.Y)
+                    self.A_data.append(self.A)
+                    self.Speed_X_data.append(self.Speed_X)
+                    self.Speed_Y_data.append(self.Speed_Y)
+                    self.Speed_data.append(self.Speed)
+                    # self.Angle_display.set_text('Angle = %.2f' % (self.A))
+                    # self.Speed_X_display.set_text('Speed_X = %.2f' % self.Speed_X)
+                    # self.Speed_Y_display.set_text('Speed_Y = %.2f' % self.Speed_Y)
+                    # self.Speed_display.set_text('Speed = %.2f' % self.Speed)
                     yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
                     #一定要有这个生成器
 
@@ -422,6 +411,7 @@ This is a program for cart adjusting. function completing.""")
                 self.plotedFlag = True
                 self.graph.animationInit()
                 self.statusBar().showMessage('plotting.')
+                self.plotButton.setText('Stop')
             else:
                 self.warning('Please open serial port first!')
                 self.plotButton.setChecked(False)
