@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="48d8c6e2-d22d-4a00-a40d-e7e02bba72fd" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/console_PyQt5.py" afterPath="$PROJECT_DIR$/console_PyQt5.py" />
-    </list>
+    <list default="true" id="48d8c6e2-d22d-4a00-a40d-e7e02bba72fd" name="Default" comment="" />
     <ignored path="Computer.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
