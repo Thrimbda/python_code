@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-03 14:21:52
+# @Last Modified time: 2016-03-03 17:46:58
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -126,6 +126,22 @@ class Graph():
             self.Speed_Y = (self.Y_data[-1] - self.Y_data[-2]) / (self.t_data[-1] - self.t_data[-2])
             self.Speed = np.sqrt(self.Speed_X ** 2 + self.Speed_Y ** 2)
 
+    def timeCount(self):
+        if len(self.timeNode) != 0:
+            time = ""
+            for i in range(len(self.timeNode)):
+                if i == 0:
+                    time += ("大车路径点记录：\n第%.1f秒大车启动\n" % (self.graph.timeNode[i]))
+                else:
+                    time += ("第%d段路径用时%.1f秒\n" % (i, self.timeNode[i]-self.timeNode[i-1]))
+                if len(self.timeNode) == 19:
+                    time += ("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0], self.timeNode[18]-self.timeNode[17], self.timeNode[18]-self.timeNode[0]))
+                elif len(self.timeNode) == 19:
+                    time += ("总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0]))
+        else:
+            time = "no data in the record"
+        return time
+
     def init(self):         # 动画初始化
 
         self.route.set_data([], [])
@@ -153,8 +169,11 @@ class Graph():
             else:
                 try:
                     self.info = tuple(eval(self.serRead))
-                    print(self.info)
-                    if self.info[-1] != 1:
+                    if self.info[-1] == 2:
+                        self.timeNode.append(self.info[0])
+                        print(self.timeNode)
+                        raise Exception
+                    elif self.info[-1] != 1 and self.info[-1] != 2:
                         raise Exception
                 except Exception:
                     self.type = 'bad_datatype'
@@ -162,7 +181,7 @@ class Graph():
                 else:
                     self.X, self.Y, self.A, self.t = self.info[0], self.info[1], self.info[2], self.info[3]
                     self.calculator()
-                    print(self.info)
+                    # print(self.info)
                     self.t_data.append(self.t)
                     self.X_data.append(self.X)
                     self.Y_data.append(self.Y)
@@ -355,18 +374,14 @@ This is a program for cart adjusting. function completing.""")
         QtWidgets.QMessageBox.warning(self, title, message)
 
     def saveroute(self):
-        if len(self.timeNode) != 0:
-            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File', os.path.split(os.path.realpath(__file__))[0])
+        if len(self.graph.timeNode) != 0:
+            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File')
             try:
                 with open(fname[0], 'w') as self.fobj:
-                    self.fobj.write("大车路径点记录：\n")
-                    for i in self.timeNode:
-                        if i == 0:
-                            self.fobj.write("第%d段路径用时%f秒" % (i+1), (self.timeNode[i]))
-                        else:
-                            self.fobj.write("第%d段路径用时%f秒" % (i+1), (self.timeNode[i]-self.timeNode[i-1]))
+                    self.fobj.write(self.graph.timeCount())
             except Exception:
-                self.warning('failed to open the file.')
+                self.warning('failed to operation the file.')
+                print(Exception)
         else:
             self.warning('no time node recorded.')
         #-----------------------------function below is for save point after plotting-----------------------------------------
@@ -419,6 +434,7 @@ This is a program for cart adjusting. function completing.""")
             self.plottingFlag = False
             self.graph.animationStop()
             self.statusBar().showMessage('stoped')
+            self.plotButton.setText('Start')
 
     def graphClear(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
@@ -441,10 +457,7 @@ This is a program for cart adjusting. function completing.""")
                 pass
 
     def timeNodeRecord(self):
-        try:
-            self.timeNode.append(self.graph.t_data[-1])
-        except IndexError:
-            self.warning("Haven't plot yet.")
+        self.information(self.graph.timeCount(), "Timer")
 
 if __name__ == '__main__':
     qApp = QtWidgets.QApplication(sys.argv)
