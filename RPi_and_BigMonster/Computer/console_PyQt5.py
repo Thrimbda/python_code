@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-03 17:46:58
+# @Last Modified time: 2016-03-03 18:07:15
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -131,13 +131,13 @@ class Graph():
             time = ""
             for i in range(len(self.timeNode)):
                 if i == 0:
-                    time += ("大车路径点记录：\n第%.1f秒大车启动\n" % (self.graph.timeNode[i]))
+                    time += ("大车路径点记录：\n第%.1f秒大车启动\n" % (self.timeNode[i]))
                 else:
                     time += ("第%d段路径用时%.1f秒\n" % (i, self.timeNode[i]-self.timeNode[i-1]))
                 if len(self.timeNode) == 19:
                     time += ("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0], self.timeNode[18]-self.timeNode[17], self.timeNode[18]-self.timeNode[0]))
-                elif len(self.timeNode) == 19:
-                    time += ("总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0]))
+                else:
+                    time += ("总计用时%.1f秒" % (self.timeNode[-1]-self.timeNode[0]))
         else:
             time = "no data in the record"
         return time
@@ -347,7 +347,7 @@ This is a program for cart adjusting. function completing.""")
                                               QtWidgets.QMessageBox.Save)
 
         if reply == QtWidgets.QMessageBox.Save:
-            self.graphStop()
+            self.graphFunc()
             self.saveroute()
             return True
         elif reply == QtWidgets.QMessageBox.Discard:
@@ -379,6 +379,7 @@ This is a program for cart adjusting. function completing.""")
             try:
                 with open(fname[0], 'w') as self.fobj:
                     self.fobj.write(self.graph.timeCount())
+                    self.savedFlag = True
             except Exception:
                 self.warning('failed to operation the file.')
                 print(Exception)

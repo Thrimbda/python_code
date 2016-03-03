@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="48d8c6e2-d22d-4a00-a40d-e7e02bba72fd" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/console_PyQt5.py" afterPath="$PROJECT_DIR$/console_PyQt5.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../tset.py" afterPath="$PROJECT_DIR$/../../tset.py" />
     </list>
     <ignored path="Computer.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -34,8 +33,8 @@
       <file leaf-file-name="console_PyQt5.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/console_PyQt5.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5770492">
-              <caret line="160" column="9" selection-start-line="160" selection-start-column="9" selection-end-line="160" selection-end-column="9" />
+            <state vertical-scroll-proportion="1.137705">
+              <caret line="179" column="9" selection-start-line="179" selection-start-column="9" selection-end-line="179" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -522,87 +521,87 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>149</line>
+          <line>165</line>
           <option name="timeStamp" value="49" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>154</line>
+          <line>173</line>
           <option name="timeStamp" value="51" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>158</line>
+          <line>177</line>
           <option name="timeStamp" value="52" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>157</line>
+          <line>176</line>
           <option name="timeStamp" value="53" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>150</line>
+          <line>166</line>
           <option name="timeStamp" value="54" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>159</line>
+          <line>178</line>
           <option name="timeStamp" value="55" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>160</line>
+          <line>179</line>
           <option name="timeStamp" value="56" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>161</line>
+          <line>180</line>
           <option name="timeStamp" value="57" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>179</line>
+          <line>198</line>
           <option name="timeStamp" value="58" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>156</line>
+          <line>175</line>
           <option name="timeStamp" value="60" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>147</line>
+          <line>163</line>
           <option name="timeStamp" value="61" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>165</line>
+          <line>184</line>
           <option name="timeStamp" value="62" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>166</line>
+          <line>185</line>
           <option name="timeStamp" value="63" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>168</line>
+          <line>187</line>
           <option name="timeStamp" value="68" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>169</line>
+          <line>188</line>
           <option name="timeStamp" value="73" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>170</line>
+          <line>189</line>
           <option name="timeStamp" value="74" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="python-line">
           <url>file://$PROJECT_DIR$/console_PyQt5.py</url>
-          <line>171</line>
+          <line>190</line>
           <option name="timeStamp" value="76" />
         </line-breakpoint>
       </breakpoints>
@@ -893,8 +892,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/console_PyQt5.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5770492">
-          <caret line="160" column="9" selection-start-line="160" selection-start-column="9" selection-end-line="160" selection-end-column="9" />
+        <state vertical-scroll-proportion="1.137705">
+          <caret line="179" column="9" selection-start-line="179" selection-start-column="9" selection-end-line="179" selection-end-column="9" />
           <folding />
         </state>
       </provider>
