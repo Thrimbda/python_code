@@ -134,10 +134,10 @@ class Graph():
                     time += ("大车路径点记录：\n第%.1f秒大车启动\n" % (self.timeNode[i]))
                 else:
                     time += ("第%d段路径用时%.1f秒\n" % (i, self.timeNode[i]-self.timeNode[i-1]))
-                if len(self.timeNode) == 19:
-                    time += ("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0], self.timeNode[18]-self.timeNode[17], self.timeNode[18]-self.timeNode[0]))
-                else:
-                    time += ("总计用时%.1f秒" % (self.timeNode[-1]-self.timeNode[0]))
+            if len(self.timeNode) == 19:
+                time += ("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0], self.timeNode[18]-self.timeNode[17], self.timeNode[18]-self.timeNode[0]))
+            else:
+                time += ("总计用时%.1f秒" % (self.timeNode[-1]-self.timeNode[0]))
         else:
             time = "no data in the record"
         return time
