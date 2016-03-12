@@ -1,0 +1,287 @@
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+TestDialog	Jiaxuan's/pysrl.py	/^class TestDialog(QDialog,Ui_Dialog):$/;"	c
+__init__	Jiaxuan's/pysrl.py	/^    def __init__(self,parent=None):  $/;"	m	class:TestDialog
+__init__	Jiaxuan's/pysrl.py	/^    def __init__(self,window):$/;"	m	class:worker
+_encoding	Jiaxuan's/pysrl.py	/^    _encoding = QtGui.QApplication.UnicodeUTF8$/;"	v
+_fromUtf8	Jiaxuan's/pysrl.py	/^    _fromUtf8 = QtCore.QString.fromUtf8$/;"	v
+_fromUtf8	Jiaxuan's/pysrl.py	/^    def _fromUtf8(s):$/;"	f
+_translate	Jiaxuan's/pysrl.py	/^    def _translate(context, text, disambig):$/;"	f
+app	Jiaxuan's/pysrl.py	/^app=QApplication(sys.argv)$/;"	v
+basedir	Jiaxuan's/pysrl.py	/^basedir = os.getcwd()$/;"	v
+close_comm	Jiaxuan's/pysrl.py	/^    def close_comm(self):$/;"	m	class:TestDialog
+datatype	Jiaxuan's/pysrl.py	/^datatype = np.dtype([('x','<f'),('y','<f')])$/;"	v
+dialog	Jiaxuan's/pysrl.py	/^dialog=TestDialog()$/;"	v
+display	Jiaxuan's/pysrl.py	/^    def display(self,data):$/;"	m	class:TestDialog
+get_available_port	Jiaxuan's/pysrl.py	/^    def get_available_port(self):$/;"	m	class:TestDialog
+get_path	Jiaxuan's/pysrl.py	/^    def get_path(self):$/;"	m	class:TestDialog
+i	Jiaxuan's/pysrl.py	/^i = 0$/;"	v
+line	Jiaxuan's/pysrl.py	/^line = None$/;"	v
+open_comm	Jiaxuan's/pysrl.py	/^    def open_comm(self):$/;"	m	class:TestDialog
+run	Jiaxuan's/pysrl.py	/^    def run(self):$/;"	m	class:worker
+update	Jiaxuan's/pysrl.py	/^    def update(self,data):$/;"	m	class:TestDialog
+work	Jiaxuan's/pysrl.py	/^work = worker(dialog)$/;"	v
+worker	Jiaxuan's/pysrl.py	/^class worker(QThread):$/;"	c
+HOST	Jiaxuan's/sd.py	/^HOST='127.0.0.1'$/;"	v
+PORT	Jiaxuan's/sd.py	/^PORT=50007$/;"	v
+a	Jiaxuan's/sd.py	/^    a = np.array([(x,y)],dtype = datatype)$/;"	v
+a	Jiaxuan's/sd.py	/^a = np.array([(2,3)],dtype = datatype)$/;"	v
+comm	Jiaxuan's/sd.py	/^comm = serial.Serial(0,baudrate=115200)$/;"	v
+datatype	Jiaxuan's/sd.py	/^datatype = np.dtype([('x','<f'),('y','<f')])$/;"	v
+s	Jiaxuan's/sd.py	/^s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)$/;"	v
+x	Jiaxuan's/sd.py	/^    x = x + random.random() * 10$/;"	v
+x	Jiaxuan's/sd.py	/^x = 0$/;"	v
+y	Jiaxuan's/sd.py	/^    y = y + random.random() * 10$/;"	v
+y	Jiaxuan's/sd.py	/^y = 0$/;"	v
+comm	Jiaxuan's/serl_send.py	/^comm = serial.Serial(1,baudrate=115200)$/;"	v
+x	Jiaxuan's/serl_send.py	/^x = struct.pack('=2B3i',0xc8,0xc8,3,201,3)$/;"	v
+avi	Jiaxuan's/srl.py	/^avi = []$/;"	v
+s	Jiaxuan's/srl.py	/^        s = serial.Serial(i)$/;"	v
+PointRoute	RPi_and_BigMonster/Computer/PointRoute.c	/^const struct Path_Point PointRoute[] = \/\/ֻ��position��ǰ������xy���꣡$/;"	v	typeref:struct:Path_Point
+Receive_Data	RPi_and_BigMonster/Computer/Recv_UDP.py	/^	def Receive_Data(self):$/;"	m	class:Recv_UDP
+Receive_Posture	RPi_and_BigMonster/Computer/Recv_UDP.py	/^	def Receive_Posture(self):$/;"	m	class:Recv_UDP
+Receive_State	RPi_and_BigMonster/Computer/Recv_UDP.py	/^	def Receive_State(self):$/;"	m	class:Recv_UDP
+Recv_UDP	RPi_and_BigMonster/Computer/Recv_UDP.py	/^class Recv_UDP:$/;"	c
+__init__	RPi_and_BigMonster/Computer/Recv_UDP.py	/^	def __init__(self, IPaddress, Port, timeout):$/;"	m	class:Recv_UDP
+TransData	RPi_and_BigMonster/Computer/Trans_UDP.py	/^	def TransData(self, Message):$/;"	m	class:Transmission
+Transmission	RPi_and_BigMonster/Computer/Trans_UDP.py	/^class Transmission:$/;"	c
+__init__	RPi_and_BigMonster/Computer/Trans_UDP.py	/^	def __init__(self):$/;"	m	class:Transmission
+GUIsetting	RPi_and_BigMonster/Computer/console_PyQt5.py	/^class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为基类）$/;"	c
+Graph	RPi_and_BigMonster/Computer/console_PyQt5.py	/^class Graph():$/;"	c
+SerialCtl	RPi_and_BigMonster/Computer/console_PyQt5.py	/^class SerialCtl():      #serial Initialization$/;"	c
+__init__	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def __init__(self):$/;"	m	class:SerialCtl
+__init__	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def __init__(self, parent=None):        #构造函数$/;"	m	class:GUIsetting
+__init__	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):$/;"	m	class:Graph
+aboutMessage	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def aboutMessage(self):$/;"	m	class:GUIsetting
+actionEnsure	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def actionEnsure(self, message, title='Warning'):$/;"	f
+animationInit	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def animationInit(self):$/;"	m	class:Graph
+animationStop	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def animationStop(self):$/;"	m	class:Graph
+aw	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    aw = GUIsetting()$/;"	v
+calculator	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def calculator(self):$/;"	m	class:Graph
+checkModel	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def checkModel(self):$/;"	m	class:GUIsetting
+clear	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def clear(self):$/;"	m	class:Graph
+closeEvent	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def closeEvent(self, event):$/;"	f
+fileQuit	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def fileQuit(self):$/;"	m	class:GUIsetting
+func	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def func(self, generator):      #绘图函数$/;"	m	class:Graph
+generator	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def generator(self):      # 数据迭代器$/;"	m	class:Graph
+getAvailablePort	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def getAvailablePort(self):$/;"	m	class:SerialCtl
+graphClear	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def graphClear(self):$/;"	f
+graphFunc	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def graphFunc(self, pressed):$/;"	f
+information	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def information(self, message, title='reminder'):$/;"	f
+init	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def init(self):         # 动画初始化$/;"	m	class:Graph
+pf	RPi_and_BigMonster/Computer/console_PyQt5.py	/^pf = platform.system()      #识别当前工作环境$/;"	v
+qApp	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    qApp = QtWidgets.QApplication(sys.argv)$/;"	v
+readline	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def readline(self):$/;"	m	class:SerialCtl
+saveEnsure	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def saveEnsure(self, message, title='Warning'):$/;"	f
+saveroute	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def saveroute(self):$/;"	f
+serialClose	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def serialClose(self):$/;"	m	class:SerialCtl
+serialInit	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def serialInit(self, port):     #串口模块初始化$/;"	m	class:SerialCtl
+serialOperation	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def serialOperation(self, pressed):$/;"	f
+timeCount	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def timeCount(self):$/;"	m	class:Graph
+timeNodeRecord	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def timeNodeRecord(self):$/;"	f
+warning	RPi_and_BigMonster/Computer/console_PyQt5.py	/^    def warning(self, message, title='Warning'):$/;"	f
+GUIsetting	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^class GUIsetting(graph):  # 建立GUI设置类（以网络适配器配置类为基类）$/;"	c
+__init__	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^    def __init__(self, xmin, xmax, ymin, ymax):$/;"	m	class:graph
+__init__	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^    def __init__(self, xmin, xmax, ymin, ymax, parent=None):  # 构造函数$/;"	m	class:GUIsetting
+clear	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^    def clear(self):$/;"	m	class:GUIsetting
+drawAni	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^    def drawAni(self):$/;"	m	class:graph
+figure	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^figure = GUIsetting(-14000, 0, 0, 14000)$/;"	v
+func	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^    def func(self, generator):  # 绘图函数$/;"	m	class:graph
+graph	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^class graph():$/;"	c
+init	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^    def init(self):         # 动画初始化$/;"	m	class:graph
+make_widgets	RPi_and_BigMonster/Computer/drawRoute_file-Tk_solution.py	/^    def make_widgets(self):  # 配置函数$/;"	m	class:GUIsetting
+__init__	RPi_and_BigMonster/Computer/drawRoute_file_solution.py	/^    def __init__(self, xmin, xmax, ymin, ymax, IPaddress, Port, timeout):$/;"	m	class:graph
+drawAni	RPi_and_BigMonster/Computer/drawRoute_file_solution.py	/^    def drawAni(self):$/;"	m	class:graph
+fig1	RPi_and_BigMonster/Computer/drawRoute_file_solution.py	/^    fig1 = graph(-14000, 0, 0,14000, '192.168.10.90', 5005, 3)$/;"	v
+func	RPi_and_BigMonster/Computer/drawRoute_file_solution.py	/^    def func(self, frames):		#绘图函数$/;"	m	class:graph
+graph	RPi_and_BigMonster/Computer/drawRoute_file_solution.py	/^class graph():$/;"	c
+init	RPi_and_BigMonster/Computer/drawRoute_file_solution.py	/^    def init(self):			# 动画初始化$/;"	m	class:graph
+__init__	RPi_and_BigMonster/Computer/drawRoute_filesolutionv2.py	/^    def __init__(self, xmin, xmax, ymin, ymax, IPaddress, Port, timeout):$/;"	m	class:graph
+drawAni	RPi_and_BigMonster/Computer/drawRoute_filesolutionv2.py	/^    def drawAni(self):$/;"	m	class:graph
+fig1	RPi_and_BigMonster/Computer/drawRoute_filesolutionv2.py	/^    fig1 = graph(-14000, 0, -1000,14000, '192.168.10.90', 5005, 3)$/;"	v
+func	RPi_and_BigMonster/Computer/drawRoute_filesolutionv2.py	/^    def func(self, generator):		#绘图函数$/;"	m	class:graph
+generator	RPi_and_BigMonster/Computer/drawRoute_filesolutionv2.py	/^    def generator(self):		# 数据迭代器$/;"	m	class:graph
+graph	RPi_and_BigMonster/Computer/drawRoute_filesolutionv2.py	/^class graph():$/;"	c
+init	RPi_and_BigMonster/Computer/drawRoute_filesolutionv2.py	/^    def init(self):			# 动画初始化$/;"	m	class:graph
+GUIsetting	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^class GUIsetting():        #建立GUI设置类（以网络适配器配置类为基类）$/;"	c
+Graph	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^class Graph():$/;"	c
+__init__	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def __init__(self, parent=None):        #构造函数$/;"	m	class:GUIsetting
+__init__	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def __init__(self, xmin, xmax, ymin, ymax):$/;"	m	class:Graph
+drawAni	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def drawAni(self):$/;"	m	class:Graph
+figure	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    figure = GUIsetting()$/;"	v
+func	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def func(self, generator):      #绘图函数$/;"	m	class:Graph
+generator	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def generator(self):      # 数据迭代器$/;"	m	class:Graph
+init	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def init(self):         # 动画初始化$/;"	m	class:Graph
+initgraph	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def initgraph(self):$/;"	m	class:GUIsetting
+make_widgets	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def make_widgets(self):     #配置函数$/;"	m	class:GUIsetting
+saveRoute	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def saveRoute(self):$/;"	m	class:Graph
+saveroute	RPi_and_BigMonster/Computer/drawRoute_final_solution.py	/^    def saveroute(self):$/;"	m	class:GUIsetting
+GUIsetting	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为基类）$/;"	c
+Graph	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^class Graph():$/;"	c
+__init__	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def __init__(self, parent=None):        #构造函数$/;"	m	class:GUIsetting
+__init__	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):$/;"	m	class:Graph
+aboutMessage	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def aboutMessage(self):$/;"	m	class:GUIsetting
+aw	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    aw = GUIsetting()$/;"	v
+closeEvent	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def closeEvent(self, event):$/;"	f
+drawAni	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def drawAni(self):$/;"	m	class:Graph
+fileQuit	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def fileQuit(self):$/;"	m	class:GUIsetting
+func	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def func(self, generator):      #绘图函数$/;"	m	class:Graph
+generator	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def generator(self):      # 数据迭代器$/;"	m	class:Graph
+init	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def init(self):         # 动画初始化$/;"	m	class:Graph
+initgraph	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def initgraph(self):$/;"	f
+qApp	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    qApp = QtWidgets.QApplication(sys.argv)$/;"	v
+saveRoute	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def saveRoute(self):$/;"	m	class:Graph
+saveroute	RPi_and_BigMonster/Computer/drawRoute_rt_solution.py	/^    def saveroute(self):$/;"	f
+Communicata_ARM	RPi_and_BigMonster/RPi/Mainctl.py	/^class Communicata_ARM:			#receive data from ARM and send command to ARM$/;"	c
+MESSAGE	RPi_and_BigMonster/RPi/Mainctl.py	/^	MESSAGE = cnt.Readline()$/;"	v
+Readline	RPi_and_BigMonster/RPi/Mainctl.py	/^	def Readline(self):$/;"	m	class:Communicata_ARM
+ReceiveUDP	RPi_and_BigMonster/RPi/Mainctl.py	/^class ReceiveUDP:		#receive command from PC$/;"	c
+Receive_Data	RPi_and_BigMonster/RPi/Mainctl.py	/^	def Receive_Data(self):$/;"	m	class:ReceiveUDP
+Receive_Posture	RPi_and_BigMonster/RPi/Mainctl.py	/^	def Receive_Posture(self):$/;"	m	class:ReceiveUDP
+Receive_State	RPi_and_BigMonster/RPi/Mainctl.py	/^	def Receive_State(self):$/;"	m	class:ReceiveUDP
+TransData	RPi_and_BigMonster/RPi/Mainctl.py	/^	def TransData(self, Message):$/;"	m	class:TransUDP
+TransUDP	RPi_and_BigMonster/RPi/Mainctl.py	/^class TransUDP:			#send data to PC$/;"	c
+__init__	RPi_and_BigMonster/RPi/Mainctl.py	/^	def __init__(self):$/;"	m	class:Communicata_ARM
+__init__	RPi_and_BigMonster/RPi/Mainctl.py	/^	def __init__(self):$/;"	m	class:ReceiveUDP
+__init__	RPi_and_BigMonster/RPi/Mainctl.py	/^	def __init__(self):$/;"	m	class:TransUDP
+cnt	RPi_and_BigMonster/RPi/Mainctl.py	/^cnt = Receive_fARM()$/;"	v
+judge_Type	RPi_and_BigMonster/RPi/Mainctl.py	/^	def judge_Type(self):$/;"	m	class:ReceiveUDP
+sdctl	RPi_and_BigMonster/RPi/Mainctl.py	/^sdctl = Transmission()$/;"	v
+Recive_CMD	RPi_and_BigMonster/RPi/PiRecv_UDP.py	/^class Recive_CMD:$/;"	c
+Recive_Data	RPi_and_BigMonster/RPi/PiRecv_UDP.py	/^	def Recive_Data(self):$/;"	m	class:Recive_CMD
+Recive_Posture	RPi_and_BigMonster/RPi/PiRecv_UDP.py	/^	def Recive_Posture(self):$/;"	m	class:Recive_CMD
+Recive_State	RPi_and_BigMonster/RPi/PiRecv_UDP.py	/^	def Recive_State(self):$/;"	m	class:Recive_CMD
+__init__	RPi_and_BigMonster/RPi/PiRecv_UDP.py	/^	def __init__(self):$/;"	m	class:Recive_CMD
+judge_Type	RPi_and_BigMonster/RPi/PiRecv_UDP.py	/^	def judge_Type(self):$/;"	m	class:Recive_CMD
+GUIsetting	RPi_and_BigMonster/auto_ip_pyqt.py	/^class GUIsetting(SetNetWork):                                                                                                               #建立GUI设置类（以网络适配器配置类为基类）$/;"	c
+SetDNS	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def SetDNS(self):                                                                                                                       ##设置DNS服务器函数$/;"	m	class:SetNetWork
+SetGateway	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def SetGateway(self):                                                                                                                   #设置网关函数$/;"	m	class:SetNetWork
+SetIP	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def SetIP(self):                                                                                                                        #设置IP函数$/;"	m	class:SetNetWork
+SetNetWork	RPi_and_BigMonster/auto_ip_pyqt.py	/^class SetNetWork:                                                                                                                           #建立网络适配器配置类$/;"	c
+__init__	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def __init__(self):                                                                                                                     #构造函数$/;"	m	class:SetNetWork
+__init__	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def __init__(self, parent=None):                                                                                                         #构造函数$/;"	m	class:GUIsetting
+make_widgets	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def make_widgets(self):                                                                                                                 #配置函数$/;"	m	class:GUIsetting
+massage	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def massage(self):                                                                                                                      #在当前网络适配器中循环$/;"	m	class:GUIsetting
+settingIP	RPi_and_BigMonster/auto_ip_pyqt.py	/^    def settingIP(self):                                                                                                                    #更改ip按钮回调函数$/;"	m	class:GUIsetting
+Recive_Data	UDPreceive.py	/^	def Recive_Data(self):$/;"	m	class:Recive_PMT
+Recive_PMT	UDPreceive.py	/^class Recive_PMT:$/;"	c
+__init__	UDPreceive.py	/^	def __init__(self):$/;"	m	class:Recive_PMT
+fobj	UDPreceive.py	/^	fobj = open('\/home\/macsnow\/Documents\/python_code\/database.txt','w')$/;"	v
+obj	UDPreceive.py	/^	obj = Recive_PMT()$/;"	v
+GUIsetting	auto_ip_classversion.py	/^class GUIsetting(SetNetWork):																												#建立GUI设置类（以网络适配器配置类为基类）$/;"	c
+SetDNS	auto_ip_classversion.py	/^	def SetDNS(self):																														##设置DNS服务器函数$/;"	m	class:SetNetWork
+SetGateway	auto_ip_classversion.py	/^	def SetGateway(self):																													#设置网关函数$/;"	m	class:SetNetWork
+SetIP	auto_ip_classversion.py	/^	def SetIP(self):																														#设置IP函数$/;"	m	class:SetNetWork
+SetNetWork	auto_ip_classversion.py	/^class SetNetWork:																															#建立网络适配器配置类$/;"	c
+__init__	auto_ip_classversion.py	/^	def __init__(self):																														#构造函数$/;"	m	class:SetNetWork
+__init__	auto_ip_classversion.py	/^	def __init__(self,parent=None):																											#构造函数$/;"	m	class:GUIsetting
+make_widgets	auto_ip_classversion.py	/^	def make_widgets(self):																													#配置函数$/;"	m	class:GUIsetting
+massage	auto_ip_classversion.py	/^	def massage(self):																														#在当前网络适配器中循环$/;"	m	class:GUIsetting
+settingIP	auto_ip_classversion.py	/^	def settingIP(self):																													#更改ip按钮回调函数$/;"	m	class:GUIsetting
+dlg	change.py	/^dlg = win32ui.CreateFileDialog(1)			#新建窗口$/;"	v
+f1	change.py	/^f1=dlg.GetPathName()						#获取文件路径以及文件名$/;"	v
+f2	change.py	/^	f2='E:\/python_3.5.0\/newfile.html'		#新文件将创建在程序子目录$/;"	v
+fr	change.py	/^	fr=open(f1,'r',encoding="utf-8")						#打开原文件$/;"	v
+fw	change.py	/^	fw=open(f2,'w')						#创建新文件$/;"	v
+line	change.py	/^		line=fr.readline()					#读取下一行$/;"	v
+line	change.py	/^		line=p.sub(r'href="#"',line)		#将找到的链接替换为无效链接$/;"	v
+line	change.py	/^	line=fr.readline()						#读取文件第一行字符进入字符串line$/;"	v
+p	change.py	/^		p=re.compile(r'href=".*?"')			#利用正则表达式查找链接$/;"	v
+removeBom	change.py	/^def removeBom(nfile):$/;"	f
+fname	change2.py	/^fname = askopenfilename(filetypes=(("Template files", "*.tplate"), ("HTML files", "*.html;*.htm"), ("All files", "*.*") ))$/;"	v
+Pi_IP	drawRoute.py	/^Pi_IP = '192.168.10.151'$/;"	v
+Pi_PORT	drawRoute.py	/^Pi_PORT = 5005$/;"	v
+s	drawRoute.py	/^s = socket.socket(socket.AF_INET,		#internet$/;"	v
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+C	p1.py	/^def C(n,r):$/;"	f
+f1	p1.py	/^def f1(x):$/;"	f
+yang	p1.py	/^def yang(i):$/;"	f
+line	p2.py	/^            line = '("posture",('+line[0]+','+line[1]+','+line[2]+','+str(np.cos(float(line[2]))*line[4])+','+str(np.sin(float(line[2]))*line[4])+','+line[4]+'))\\n'$/;"	v
+line	p2.py	/^            line = frobj.readline()$/;"	v
+line	p2.py	/^            line = line.replace(' { {', '').replace('}', '').split(',')$/;"	v
+line	p2.py	/^        line = frobj.readline()$/;"	v
+__add__	p3.py	/^	def __add__(self,other):$/;"	m	class:adder	file:
+__init__	p3.py	/^	def __init__(self,first=[]):$/;"	m	class:adder
+__radd__	p3.py	/^	def __radd__(self,other):$/;"	m	class:adder	file:
+add	p3.py	/^	def add(self,x,y):$/;"	m	class:adder
+add	p3.py	/^	def add(self,x,y):$/;"	m	class:dictadder
+add	p3.py	/^	def add(self,x,y):$/;"	m	class:listadder
+adder	p3.py	/^class adder:$/;"	c
+dictadder	p3.py	/^class dictadder(adder):$/;"	c
+listadder	p3.py	/^class listadder(adder):$/;"	c
+Mylist	p4.py	/^class Mylist:$/;"	c
+MylistSub	p4.py	/^class MylistSub(Mylist):$/;"	c
+__add__	p4.py	/^	def __add__(self,value):$/;"	m	class:Mylist	file:
+__add__	p4.py	/^	def __add__(self,value):$/;"	m	class:MylistSub	file:
+__getattr__	p4.py	/^	def __getattr__(self,name):$/;"	m	class:Mylist	file:
+__getitem__	p4.py	/^	def __getitem__(self,value):$/;"	m	class:Mylist	file:
+__getslice__	p4.py	/^	def __getslice__(self,a,b):$/;"	m	class:Mylist	file:
+__iadd__	p4.py	/^	def __iadd__(self,value):$/;"	m	class:Mylist	file:
+__init__	p4.py	/^	def __init__(self,value=[]):$/;"	m	class:Mylist
+__init__	p4.py	/^	def __init__(self,value=[]):$/;"	m	class:MylistSub
+__len__	p4.py	/^	def __len__(self,value):$/;"	m	class:Mylist	file:
+__mul__	p4.py	/^	def __mul__(self,value):$/;"	m	class:Mylist	file:
+__radd__	p4.py	/^	def __radd__(self,value):$/;"	m	class:Mylist	file:
+__repr__	p4.py	/^	def __repr__(self):$/;"	m	class:Mylist	file:
+append	p4.py	/^	def append(self,value):$/;"	m	class:Mylist
+calls	p4.py	/^	calls=0$/;"	v	class:MylistSub
+stats	p4.py	/^	def stats(self):$/;"	m	class:MylistSub
+TestDialog	p5.py	/^class TestDialog(QDialog, Ui_Dialog):$/;"	c
+__init__	p5.py	/^    def __init__(self, parent=None):$/;"	m	class:TestDialog
+__init__	p5.py	/^    def __init__(self, window):$/;"	m	class:worker
+_encoding	p5.py	/^    _encoding = QtGui.QApplication.UnicodeUTF8$/;"	v
+_fromUtf8	p5.py	/^    _fromUtf8 = QtCore.QString.fromUtf8$/;"	v
+_fromUtf8	p5.py	/^    def _fromUtf8(s):$/;"	f
+_translate	p5.py	/^    def _translate(context, text, disambig):$/;"	f
+app	p5.py	/^app = QApplication(sys.argv)$/;"	v
+basedir	p5.py	/^basedir = os.getcwd()$/;"	v
+close_comm	p5.py	/^    def close_comm(self):$/;"	m	class:TestDialog
+datatype	p5.py	/^datatype = np.dtype([('x', '<f'), ('y', '<f')])$/;"	v
+dialog	p5.py	/^dialog = TestDialog()$/;"	v
+display	p5.py	/^    def display(self, data):$/;"	m	class:TestDialog
+get_available_port	p5.py	/^    def get_available_port(self):$/;"	m	class:TestDialog
+get_path	p5.py	/^    def get_path(self):$/;"	m	class:TestDialog
+i	p5.py	/^i = 0$/;"	v
+line	p5.py	/^line = None$/;"	v
+open_comm	p5.py	/^    def open_comm(self):$/;"	m	class:TestDialog
+run	p5.py	/^    def run(self):$/;"	m	class:worker
+update	p5.py	/^    def update(self, data):$/;"	m	class:TestDialog
+work	p5.py	/^work = worker(dialog)$/;"	v
+worker	p5.py	/^class worker(QThread):$/;"	c
+AnalogPlot	sendfLeetMPC.py	/^class AnalogPlot:$/;"	c
+__init__	sendfLeetMPC.py	/^  def __init__(self, strPort, maxLen):$/;"	m	class:AnalogPlot
+add	sendfLeetMPC.py	/^  def add(self, data):$/;"	m	class:AnalogPlot
+addToBuf	sendfLeetMPC.py	/^  def addToBuf(self, buf, val):$/;"	m	class:AnalogPlot
+close	sendfLeetMPC.py	/^  def close(self):$/;"	m	class:AnalogPlot
+main	sendfLeetMPC.py	/^def main():$/;"	f
+update	sendfLeetMPC.py	/^  def update(self, frameNum, a0, a1):$/;"	m	class:AnalogPlot
+_quit	serialtest.py	/^def _quit():$/;"	f
+a	serialtest.py	/^a = f.add_subplot(111)$/;"	v
+button	serialtest.py	/^button = Tk.Button(master=root, text='Quit', command=_quit)$/;"	v
+canvas	serialtest.py	/^canvas = FigureCanvasTkAgg(f, master=root)$/;"	v
+f	serialtest.py	/^f = Figure(figsize=(5, 4), dpi=100)$/;"	v
+on_key_event	serialtest.py	/^def on_key_event(event):$/;"	f
+root	serialtest.py	/^root = Tk.Tk()$/;"	v
+s	serialtest.py	/^s = sin(2 * pi * t)$/;"	v
+t	serialtest.py	/^t = arange(0.0, 3.0, 0.01)$/;"	v
+toolbar	serialtest.py	/^toolbar = NavigationToolbar2TkAgg(canvas, root)$/;"	v
+LARGE_FONT	teststreams.py	/^LARGE_FONT= ("Verdana", 12)$/;"	v
+PageOne	teststreams.py	/^class PageOne(tk.Frame):$/;"	c
+PageThree	teststreams.py	/^class PageThree(tk.Frame):$/;"	c
+PageTwo	teststreams.py	/^class PageTwo(tk.Frame):$/;"	c
+SeaofBTCapp	teststreams.py	/^class SeaofBTCapp(tk.Tk):$/;"	c
+StartPage	teststreams.py	/^class StartPage(tk.Frame):$/;"	c
+__init__	teststreams.py	/^    def __init__(self, *args, **kwargs):$/;"	m	class:SeaofBTCapp
+__init__	teststreams.py	/^    def __init__(self, parent, controller):$/;"	m	class:PageOne
+__init__	teststreams.py	/^    def __init__(self, parent, controller):$/;"	m	class:PageThree
+__init__	teststreams.py	/^    def __init__(self, parent, controller):$/;"	m	class:PageTwo
+__init__	teststreams.py	/^    def __init__(self, parent, controller):$/;"	m	class:StartPage
+app	teststreams.py	/^app = SeaofBTCapp()$/;"	v
+show_frame	teststreams.py	/^    def show_frame(self, cont):$/;"	m	class:SeaofBTCapp
+ax	tset.py	/^ax = fig.add_subplot(111)$/;"	v
+fig	tset.py	/^fig = plt.figure()$/;"	v
+x	tset.py	/^x = np.linspace(0, 6*np.pi, 100)$/;"	v
+y	tset.py	/^y = np.sin(x)$/;"	v
