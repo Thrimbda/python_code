@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-12 09:58:53
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-13 16:27:08
+# @Last Modified time: 2016-03-13 19:33:19
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -52,6 +52,7 @@ class GAUnit:
         return self.cityIndex
 
     def evaluateFitness(self):
+        self.length = 0
         global E
         self.geneDecode()
         for i in range(0, self.dimention):
@@ -83,6 +84,7 @@ class GA:
         self.ax.set_ylim(0, 100)
         self.ax.set_title("TSP")
         self.x_data, self.y_data = [], []
+        self.length_text = self.ax.text(2, 95, '')
         self.line, = self.ax.plot([], [], 'g-', lw=2)
 
         bound = np.tile([[0], [9]], 10)
@@ -116,7 +118,7 @@ class GA:
                     index = 0
                     break
                 elif seed >= fitnessSection[j] and seed < fitnessSection[j+1]:
-                    index = j+1
+                    index = j
                     break
             newPop.append(self.population[index])
         self.population = newPop
@@ -134,9 +136,8 @@ class GA:
             if seed < self.params[1]:
                 swapIndex = np.random.randint(1, self.dimention - 2)
                 for j in range(swapIndex, self.dimention - 1):
-                    temp = newPop[i].geneCode[j]
-                    newPop[i].geneCode[j] = newPop[i+1].geneCode[j]
-                    newPop[i+1].geneCode[j] = temp
+                    newPop[i].geneCode[j] = newPop[i].geneCode[j]*self.params[2]+newPop[i+1].geneCode[j]*(1-self.params[2])
+                    newPop[i+1].geneCode[j] = newPop[i+1].geneCode[j]*self.params[2]+newPop[i].geneCode[j]*(1-self.params[2])
                     # swap
         self.population = newPop
 
@@ -149,7 +150,7 @@ class GA:
                 mutateIndex = np.random.randint(0, self.dimention - 1)
                 # alpha = np.random.random()
                 # if alpha < 0.5:
-                newPop[i].geneCode[mutateIndex] = int((self.bound[1, mutateIndex]-mutateIndex)**(1-self.t/self.maxGen))
+                newPop[i].geneCode[mutateIndex] = int((self.bound[1, mutateIndex]-mutateIndex))
                 # else:
                 #     newPop[i].geneCode[mutateIndex] = int((self.dimention-mutateIndex)**(1-self.t/self.maxGen))
         self.population = newPop
@@ -167,22 +168,27 @@ class GA:
             self.recombination()
             self.mutation()
             self.evaluate()
-            self.best = np.max(self.fitness), np.argmax(self.fitness), copy.deepcopy(self.population[np.argmax(self.fitness)].geneDecode())
+            self.best = np.max(self.fitness), np.argmax(self.fitness), copy.deepcopy(self.population[np.argmax(self.fitness)])
             self.aveFitness = np.mean(self.fitness)
             # self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
             # self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
 
             self.x_data, self.y_data = [], []
-            for i in self.best[2]:
+            for i in self.best[2].cityIndex:
                 self.x_data.append(V[i][0])
                 self.y_data.append(V[i][1])
-            yield V[i][0], V[i][1]
+            yield V[i][0], V[i][1], self.best[2].length
+        print('done')
+        for i in range(0, self.sizePop):
+            print(self.population[i].cityIndex)
 
     def init(self):
+        self.length_text.set_text('')
         self.line.set_data([], [])
         return self.line
 
     def func(self, bigBang):
+        self.length_text.set_text('length = %.2f' % self.best[2].length)
         self.line.set_data(self.x_data, self.y_data)
         return self.line
 
@@ -192,6 +198,6 @@ class GA:
 
 if __name__ == '__main__':
     bound = np.tile([[0], [9]], 10)
-    ga = GA(60, 10, bound, 500, [0.1, 0.9])
+    ga = GA(100, 10, bound, 1000, [0.1, 0.9, 0.5])
     ga.animationInit()
     plt.show()
