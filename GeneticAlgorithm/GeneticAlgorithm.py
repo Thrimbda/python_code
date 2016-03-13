@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-12 09:58:53
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-13 15:58:52
+# @Last Modified time: 2016-03-13 16:27:08
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -75,6 +75,17 @@ class GA:
         self.genTh = 0
         self.best = None
         self.t = 0
+
+        global V
+        self.fig = plt.figure(figsize=(10, 10))
+        self.ax = self.fig.add_subplot(111)
+        self.ax.set_xlim(0, 100)
+        self.ax.set_ylim(0, 100)
+        self.ax.set_title("TSP")
+        self.x_data, self.y_data = [], []
+        self.line, = self.ax.plot([], [], 'g-', lw=2)
+
+        bound = np.tile([[0], [9]], 10)
 
     def initUnit(self):
         for i in range(0, self.sizePop):
@@ -161,41 +172,26 @@ class GA:
             # self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
             # self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
 
-            yield self.best
-
-
-class PlotGraph:
-    def __init__(self):
-        global V
-        self.fig = plt.figure(figsize=(10, 10))
-        self.ax = self.fig.add_subplot(111)
-        self.ax.set_xlim(0, 100)
-        self.ax.set_ylim(0, 100)
-        self.ax.set_title("TSP")
-        self.x_data, self.y_data = [], []
-        self.line, = self.ax.plot([], [], 'g-', lw=2)
-
-        bound = np.tile([[0], [9]], 10)
-        self.ga = GA(60, 10, bound, 1000, [0.1, 0.9])
+            self.x_data, self.y_data = [], []
+            for i in self.best[2]:
+                self.x_data.append(V[i][0])
+                self.y_data.append(V[i][1])
+            yield V[i][0], V[i][1]
 
     def init(self):
         self.line.set_data([], [])
         return self.line
 
-    def generator(self):
-        self.ga.bigBang()
-        for i in self.ga.best[2]:
-            self.x_data.append(V[i][0])
-            self.y_data.append(V[i][1])
-            yield V[i][0], V[i][1]
-
-    def func(self):
-        self.ax.set_data(self.x_data, self.y_data)
+    def func(self, bigBang):
+        self.line.set_data(self.x_data, self.y_data)
         return self.line
 
     def animationInit(self):
-        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)
+        self.draw = animation.FuncAnimation(self.fig, self.func, self.bigBang, init_func=self.init, blit=False, interval=50, repeat=False)
+
 
 if __name__ == '__main__':
-    graph = PlotGraph()
-    graph.animationInit()
+    bound = np.tile([[0], [9]], 10)
+    ga = GA(60, 10, bound, 500, [0.1, 0.9])
+    ga.animationInit()
+    plt.show()
