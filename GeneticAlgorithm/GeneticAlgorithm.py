@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-12 09:58:53
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-13 19:33:19
+# @Last Modified time: 2016-03-13 22:24:32
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -10,10 +10,12 @@ import copy
 
 # V = np.arange(10)
 # E = np.random.randint(1, 50, size=[10, 10])
-V = list(zip(np.random.random(10)*100, np.random.random(10)*100))
-E = np.zeros([10, 10])
-for i in range(0, 10):
-    for j in range(0, 10):
+sizePop = 15
+
+V = list(zip(np.random.random(sizePop)*100, np.random.random(sizePop)*100))
+E = np.zeros([sizePop, sizePop])
+for i in range(0, sizePop):
+    for j in range(0, sizePop):
         if i == j:
             E[i, j] = None
         else:
@@ -21,12 +23,13 @@ for i in range(0, 10):
 
 
 class GAUnit:
-    def __init__(self, dimention, bound):
+    def __init__(self, sizePop, dimention, bound):
         self.dimention = dimention
         self.bound = bound
         self.fitness = 0
         self.geneCode = np.zeros(self.dimention, dtype=int)
         self.length = 0
+        self.sizePop = sizePop
 
     # def initGrapg(self):
     #     V = list(zip(np.random.random(self.imention)*100, np.random.random(self.dimention)*100))
@@ -60,7 +63,8 @@ class GAUnit:
                 pass
             else:
                 self.length += E[self.cityIndex[i], self.cityIndex[i+1]]
-        self.fitness = 10/self.length
+        self.length += E[1, -1]
+        self.fitness = self.sizePop/self.length
 
 
 class GA:
@@ -91,7 +95,7 @@ class GA:
 
     def initUnit(self):
         for i in range(0, self.sizePop):
-            unit = GAUnit(self.dimention, self.bound)
+            unit = GAUnit(self.sizePop, self.dimention, self.bound)
             unit.generate()
             self.population.append(unit)
 
@@ -104,7 +108,6 @@ class GA:
         newPop = []
         fitnessTotal = np.sum(self.fitness)
         fitnessSection = np.zeros((self.sizePop, 1))
-
         temp = 0
         for i in range(0, self.sizePop):
             fitnessSection[i] = temp + self.fitness[i]/fitnessTotal
@@ -118,7 +121,7 @@ class GA:
                     index = 0
                     break
                 elif seed >= fitnessSection[j] and seed < fitnessSection[j+1]:
-                    index = j
+                    index = j + 1
                     break
             newPop.append(self.population[index])
         self.population = newPop
@@ -136,8 +139,8 @@ class GA:
             if seed < self.params[1]:
                 swapIndex = np.random.randint(1, self.dimention - 2)
                 for j in range(swapIndex, self.dimention - 1):
-                    newPop[i].geneCode[j] = newPop[i].geneCode[j]*self.params[2]+newPop[i+1].geneCode[j]*(1-self.params[2])
-                    newPop[i+1].geneCode[j] = newPop[i+1].geneCode[j]*self.params[2]+newPop[i].geneCode[j]*(1-self.params[2])
+                    newPop[i].geneCode[j] = int(newPop[i].geneCode[j]+(newPop[i+1].geneCode[j]-newPop[i].geneCode[j])*self.params[2])
+                    newPop[i+1].geneCode[j] = int(newPop[i+1].geneCode[j]+(newPop[i].geneCode[j]-newPop[i+1].geneCode[j])*self.params[2])
                     # swap
         self.population = newPop
 
@@ -150,7 +153,7 @@ class GA:
                 mutateIndex = np.random.randint(0, self.dimention - 1)
                 # alpha = np.random.random()
                 # if alpha < 0.5:
-                newPop[i].geneCode[mutateIndex] = int((self.bound[1, mutateIndex]-mutateIndex))
+                newPop[i].geneCode[mutateIndex] = int((self.bound[1, mutateIndex]-mutateIndex) ** (1 - self.t / self.maxGen))
                 # else:
                 #     newPop[i].geneCode[mutateIndex] = int((self.dimention-mutateIndex)**(1-self.t/self.maxGen))
         self.population = newPop
@@ -160,23 +163,26 @@ class GA:
         self.evaluate()
         self.best = np.max(self.fitness), np.argmax(self.fitness), copy.deepcopy(self.population[np.argmax(self.fitness)])
         self.aveFitness = np.mean(self.fitness)
-        # self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
-        # self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
+        self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
+        self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
         while(self.t < self.maxGen - 1):
             self.t += 1
             self.selection()
-            self.recombination()
+            # self.recombination()
             self.mutation()
             self.evaluate()
             self.best = np.max(self.fitness), np.argmax(self.fitness), copy.deepcopy(self.population[np.argmax(self.fitness)])
             self.aveFitness = np.mean(self.fitness)
-            # self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
-            # self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
+            self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
+            self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
 
+            print(self.best[0], self.aveFitness)
             self.x_data, self.y_data = [], []
             for i in self.best[2].cityIndex:
                 self.x_data.append(V[i][0])
                 self.y_data.append(V[i][1])
+            self.x_data.append(V[self.best[2].cityIndex[0]][0])
+            self.y_data.append(V[self.best[2].cityIndex[0]][1])
             yield V[i][0], V[i][1], self.best[2].length
         print('done')
         for i in range(0, self.sizePop):
@@ -197,7 +203,7 @@ class GA:
 
 
 if __name__ == '__main__':
-    bound = np.tile([[0], [9]], 10)
-    ga = GA(100, 10, bound, 1000, [0.1, 0.9, 0.5])
+    bound = np.tile([[0], [sizePop-1]], sizePop)
+    ga = GA(100, sizePop, bound, 1000, [0.1, 0.9, 0.25])
     ga.animationInit()
     plt.show()

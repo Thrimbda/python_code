@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-13 17:22:47
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-13 17:32:28
+# @Last Modified time: 2016-03-13 21:41:34
 import math
 import numpy as np
 import random
@@ -135,8 +135,9 @@ class GeneticAlgorithm:
             self.avefitness = np.mean(self.fitness)
             self.trace[self.t, 0] = (1 - self.best.fitness) / self.best.fitness
             self.trace[self.t, 1] = (1 - self.avefitness) / self.avefitness
-            print("Generation %d: optimal function value is: %f; average function value is %f" % (
-                self.t, self.trace[self.t, 0], self.trace[self.t, 1]))
+            # print("Generation %d: optimal function value is: %f; average function value is %f" % (
+            #     self.t, self.trace[self.t, 0], self.trace[self.t, 1]))
+            print(best)
 
         print("Optimal function value is: %f; " %
               self.trace[self.t, 0])
