@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-12 09:58:53
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-13 22:24:32
+# @Last Modified time: 2016-03-14 18:03:55
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -10,7 +10,7 @@ import copy
 
 # V = np.arange(10)
 # E = np.random.randint(1, 50, size=[10, 10])
-sizePop = 15
+sizePop = 10
 
 V = list(zip(np.random.random(sizePop)*100, np.random.random(sizePop)*100))
 E = np.zeros([sizePop, sizePop])
@@ -204,6 +204,6 @@ class GA:
 
 if __name__ == '__main__':
     bound = np.tile([[0], [sizePop-1]], sizePop)
-    ga = GA(100, sizePop, bound, 1000, [0.1, 0.9, 0.25])
+    ga = GA(100, sizePop, bound, 2000, [0.1, 0.9, 0.25])
     ga.animationInit()
     plt.show()
