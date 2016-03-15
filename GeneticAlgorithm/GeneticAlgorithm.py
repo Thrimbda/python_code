@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-12 09:58:53
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-14 18:03:55
+# @Last Modified time: 2016-03-14 22:45:07
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -80,18 +80,7 @@ class GA:
         self.genTh = 0
         self.best = None
         self.t = 0
-
-        global V
-        self.fig = plt.figure(figsize=(10, 10))
-        self.ax = self.fig.add_subplot(111)
-        self.ax.set_xlim(0, 100)
-        self.ax.set_ylim(0, 100)
-        self.ax.set_title("TSP")
-        self.x_data, self.y_data = [], []
-        self.length_text = self.ax.text(2, 95, '')
-        self.line, = self.ax.plot([], [], 'g-', lw=2)
-
-        bound = np.tile([[0], [9]], 10)
+        self.done = False
 
     def initUnit(self):
         for i in range(0, self.sizePop):
@@ -176,7 +165,32 @@ class GA:
             self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
             self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
 
-            print(self.best[0], self.aveFitness)
+        self.done = True
+        print('done')
+        for i in range(0, self.sizePop):
+            print(self.population[i].cityIndex)
+
+
+class PlotGraph(GA):
+    def __init__(self, sizePop, dimention, bound, maxGen, params):
+        super.__init__(sizePop, dimention, bound, maxGen, params)
+        global V
+        self.fig = plt.figure(figsize=(10, 10))
+        self.ax = self.fig.add_subplot(111)
+        self.ax.set_xlim(0, 100)
+        self.ax.set_ylim(0, 100)
+        self.ax.set_title("TSP")
+        self.x_data, self.y_data = [], []
+        self.length_text = self.ax.text(2, 95, '')
+        self.line, = self.ax.plot([], [], 'g-', lw=2)
+
+    def init(self):
+        self.length_text.set_text('')
+        self.line.set_data([], [])
+        return self.line
+
+    def generate(self):
+        while not self.done:
             self.x_data, self.y_data = [], []
             for i in self.best[2].cityIndex:
                 self.x_data.append(V[i][0])
@@ -184,16 +198,8 @@ class GA:
             self.x_data.append(V[self.best[2].cityIndex[0]][0])
             self.y_data.append(V[self.best[2].cityIndex[0]][1])
             yield V[i][0], V[i][1], self.best[2].length
-        print('done')
-        for i in range(0, self.sizePop):
-            print(self.population[i].cityIndex)
 
-    def init(self):
-        self.length_text.set_text('')
-        self.line.set_data([], [])
-        return self.line
-
-    def func(self, bigBang):
+    def func(self, generate):
         self.length_text.set_text('length = %.2f' % self.best[2].length)
         self.line.set_data(self.x_data, self.y_data)
         return self.line
