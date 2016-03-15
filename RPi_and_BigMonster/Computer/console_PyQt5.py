@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-03 18:07:15
+# @Last Modified time: 2016-03-15 22:09:30
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -501,10 +501,30 @@ if __name__ == '__main__':
 # updates:                                           #
 #   1. After added timeout=0 arg into serial init th-#
 #      e thread block problem finnal solved. but the #
-#      program would still stuck after plotting began.#
+#      program would still stuck after plotting began#
 #   2. The problem above was because when no data re-#
 #      ceived program stuck into a endless loop of m-#
 #      ethod generatorself.                          #
 #   3. working on completing function                #
 #                                                    #
 #---------------------2016.2.18----------------------#
+
+#-----------------------journal----------------------#
+# updates:                                           #
+#   1. Solved many problems which was mentioned above#
+#                                                    #
+# problem:                                           #
+#   1. Clear function dosen't work correctly.        #
+#                                                    #
+# blueprinr:                                         #
+#   1. Now that we are able to use uart to transport #
+#      data from PC to cart, which means that it is  #
+#      possible control cart by PC. It'll including  #
+#      these function:                               #
+#      (1) use keyboard as a joystick                #
+#      (2) replace keyborad and LCD's function       #
+#      (3) make a full use of PC's performance to do #
+#          some adjust work like PID adjustment      #
+#      (4) more to think and discuss.                #
+#                                                    #
+#---------------------2016.3.15----------------------#
