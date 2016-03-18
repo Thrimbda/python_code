@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-15 22:09:30
+# @Last Modified time: 2016-03-18 11:02:49
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -17,6 +17,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationTool
 import serial       #串口模块
 import os
 import platform
+import struct
 
 pf = platform.system()      #识别当前工作环境
 
@@ -52,6 +53,10 @@ class SerialCtl():      #serial Initialization
 
     def readline(self):
         return self.ser.readline()
+
+    def writeCmd(self, string):
+        string = struct("H", string)
+        self.ser.write(str)
 
 
 class Graph():
@@ -251,6 +256,9 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.help_menu.addAction('About', self.aboutMessage)
 
         self.main_widget = QtWidgets.QWidget(self)
+
+        # self.extensionLayout = QtWidgets.QGridLayout()
+
         self.hBox = QtWidgets.QHBoxLayout()
         self.hBox.addStretch(1)
         self.vBox = QtWidgets.QVBoxLayout(self.main_widget)
@@ -277,10 +285,15 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.plotButton.resize(self.plotButton.sizeHint())
         self.plotButton.clicked[bool].connect(self.graphFunc)
 
+        self.menuButton = QtWidgets.QPushButton('Menu', self)
+        self.menuButton.setToolTip('<b>click</b> to show/hide extension function.')
+        self.menuButton.resize(self.serialButton.sizeHint())
+        self.menuButton.clicked.connect(self.showMenu)
+
         self.recordButton = QtWidgets.QPushButton('Record', self)
         self.recordButton.setToolTip('<b>click</b> to record time node.')
         self.recordButton.resize(self.recordButton.sizeHint())
-        self.recordButton.clicked[bool].connect(self.timeNodeRecord)
+        self.recordButton.clicked.connect(self.timeNodeRecord)
         self.timeNode = []
 
         self.clearButton = QtWidgets.QPushButton('Clear', self)
@@ -292,6 +305,7 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.hBox.addWidget(self.plotButton)
         self.hBox.addWidget(self.recordButton)
         self.hBox.addWidget(self.clearButton)
+        self.hBox.addWidget(self.menuButton)
         self.vBox.addLayout(self.hBox)
 
         self.main_widget.setFocus()
@@ -459,6 +473,74 @@ This is a program for cart adjusting. function completing.""")
 
     def timeNodeRecord(self):
         self.information(self.graph.timeCount(), "Timer")
+
+    def showMenu(self):
+        self.menu = Menu()
+        self.menu.show()
+
+
+class Menu(QtWidgets.QMainWindow):
+    def __init__(self):
+        QtWidgets.QMainWindow.__init__(self)
+
+        QtWidgets.QToolTip.setFont(QtGui.QFont('Myriad Set'))       #set text-font
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
+        self.setWindowTitle('Menu')
+        self.statusBar().showMessage('Good luck with adjusting!')
+
+        self.main_widget = QtWidgets.QWidget(self)
+        self.extension = QtWidgets.QGridLayout(self.main_widget)
+
+        self.Func1 = QtWidgets.QPushButton('Open', self)
+        self.Func1.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func1.resize(self.Func1.sizeHint())
+        self.Func1.clicked.connect(self.serialOperation)
+
+        self.Func2 = QtWidgets.QPushButton('Open', self)
+        self.Func2.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func2.resize(self.serialButton.sizeHint())
+        self.Func2.clicked.connect(self.serialOperation)
+
+        self.Func3 = QtWidgets.QPushButton('Open', self)
+        self.Func3.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func3.resize(self.serialButton.sizeHint())
+        self.Func3.clicked.connect(self.serialOperation)
+
+        self.Func4 = QtWidgets.QPushButton('Open', self)
+        self.Func4.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func4.resize(self.serialButton.sizeHint())
+        self.Func4.clicked.connect(self.serialOperation)
+
+        self.Func5 = QtWidgets.QPushButton('Open', self)
+        self.Func5.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func5.resize(self.serialButton.sizeHint())
+        self.Func5.clicked.connect(self.serialOperation)
+
+        self.Func6 = QtWidgets.QPushButton('Open', self)
+        self.Func6.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func6.resize(self.serialButton.sizeHint())
+        self.Func6.clicked.connect(self.serialOperation)
+
+        self.Func7 = QtWidgets.QPushButton('Open', self)
+        self.Func7.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func7.resize(self.serialButton.sizeHint())
+        self.Func7.clicked.connect(self.serialOperation)
+
+        self.Func8 = QtWidgets.QPushButton('Open', self)
+        self.Func8.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func8.resize(self.serialButton.sizeHint())
+        self.Func8.clicked.connect(self.serialOperation)
+
+        self.Func9 = QtWidgets.QPushButton('Open', self)
+        self.Func9.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func9.resize(self.serialButton.sizeHint())
+        self.Func9.clicked.connect(self.serialOperation)
+
+        self.Func10 = QtWidgets.QPushButton('Open', self)
+        self.Func10.setToolTip('<b>click</b> to open/close a serial port.')
+        self.Func10.resize(self.serialButton.sizeHint())
+        self.Func10.clicked.connect(self.serialOperation)
 
 if __name__ == '__main__':
     qApp = QtWidgets.QApplication(sys.argv)
