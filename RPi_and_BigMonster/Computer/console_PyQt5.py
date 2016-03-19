@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-18 11:02:49
+# @Last Modified time: 2016-03-19 11:08:57
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -55,6 +55,7 @@ class SerialCtl():      #serial Initialization
         return self.ser.readline()
 
     def writeCmd(self, string):
+        string = eval(string)
         string = struct("H", string)
         self.ser.write(str)
 
@@ -489,58 +490,48 @@ class Menu(QtWidgets.QMainWindow):
         self.setWindowTitle('Menu')
         self.statusBar().showMessage('Good luck with adjusting!')
 
+        self.transport = SerialCtl()
+
         self.main_widget = QtWidgets.QWidget(self)
-        self.extension = QtWidgets.QGridLayout(self.main_widget)
+        self.extension = QtWidgets.QVBoxLayout(self.main_widget)
+        self.extension.addStretch(1)
+        self.funcButtonBar = QtWidgets.QHBoxLayout()
+        self.funcButtonBar.addStretch(1)
 
-        self.Func1 = QtWidgets.QPushButton('Open', self)
-        self.Func1.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func1.resize(self.Func1.sizeHint())
-        self.Func1.clicked.connect(self.serialOperation)
+        self.goRouteButton = QtWidgets.QPushButton('go Route', self)
+        self.goRouteButton.setToolTip('<b>click</b> to go route.')
+        self.goRouteButton.resize(self.goRouteButton.sizeHint())
+        self.goRouteButton.clicked.connect(self.goRoute)
 
-        self.Func2 = QtWidgets.QPushButton('Open', self)
-        self.Func2.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func2.resize(self.serialButton.sizeHint())
-        self.Func2.clicked.connect(self.serialOperation)
+        self.emergencyStop = QtWidgets.QPushButton('emergency Stop', self)
+        self.emergencyStop.setToolTip('<b>click</b> to force it stop.')
+        self.emergencyStop.resize(self.emergencyStop.sizeHint())
+        self.emergencyStop.clicked.connect(self.emergencyStop)
 
-        self.Func3 = QtWidgets.QPushButton('Open', self)
-        self.Func3.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func3.resize(self.serialButton.sizeHint())
-        self.Func3.clicked.connect(self.serialOperation)
+        self.funcButtonBar.addWidget(self.menuButton)
+        self.extension.addLayout(self.funcButtonBar)
 
-        self.Func4 = QtWidgets.QPushButton('Open', self)
-        self.Func4.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func4.resize(self.serialButton.sizeHint())
-        self.Func4.clicked.connect(self.serialOperation)
+        self.main_widget.setFocus()
+        self.setCentralWidget(self.main_widget)
 
-        self.Func5 = QtWidgets.QPushButton('Open', self)
-        self.Func5.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func5.resize(self.serialButton.sizeHint())
-        self.Func5.clicked.connect(self.serialOperation)
+        self.runningFlag = False
 
-        self.Func6 = QtWidgets.QPushButton('Open', self)
-        self.Func6.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func6.resize(self.serialButton.sizeHint())
-        self.Func6.clicked.connect(self.serialOperation)
+    def goRoute(self):
+        try:
+            if not self.runningFlag:
+                self.transport.write("10")
+                self.runningFlag = True
+            else:
+                raise Exception
+        except Exception:
+            pass
 
-        self.Func7 = QtWidgets.QPushButton('Open', self)
-        self.Func7.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func7.resize(self.serialButton.sizeHint())
-        self.Func7.clicked.connect(self.serialOperation)
+    def emergencyStop(self):
+        try:
+            self.transport.write("6")
+        except Exception:
+            pass
 
-        self.Func8 = QtWidgets.QPushButton('Open', self)
-        self.Func8.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func8.resize(self.serialButton.sizeHint())
-        self.Func8.clicked.connect(self.serialOperation)
-
-        self.Func9 = QtWidgets.QPushButton('Open', self)
-        self.Func9.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func9.resize(self.serialButton.sizeHint())
-        self.Func9.clicked.connect(self.serialOperation)
-
-        self.Func10 = QtWidgets.QPushButton('Open', self)
-        self.Func10.setToolTip('<b>click</b> to open/close a serial port.')
-        self.Func10.resize(self.serialButton.sizeHint())
-        self.Func10.clicked.connect(self.serialOperation)
 
 if __name__ == '__main__':
     qApp = QtWidgets.QApplication(sys.argv)

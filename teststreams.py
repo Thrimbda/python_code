@@ -1,128 +1,146 @@
-# The code for changing pages was derived from: http://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter
-# License: http://creativecommons.org/licenses/by-sa/3.0/   
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 
-import matplotlib
-matplotlib.use("TkAgg")
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-from matplotlib.figure import Figure
+"""
+ZetCode PyQt5 tutorial 
 
-import tkinter as tk
-from tkinter import ttk
+In this example, we create a custom widget.
+
+author: Jan Bodnar
+website: zetcode.com 
+last edited: January 2015
+"""
+
+import sys
+from PyQt5.QtWidgets import (QWidget, QSlider, QApplication, 
+    QHBoxLayout, QVBoxLayout)
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtGui import QPainter, QFont, QColor, QPen
 
 
-LARGE_FONT= ("Verdana", 12)
+class Communicate(QObject):
+    
+    updateBW = pyqtSignal(int)
 
 
-class SeaofBTCapp(tk.Tk):
-
-    def __init__(self, *args, **kwargs):
+class BurningWidget(QWidget):
+  
+    def __init__(self):      
+        super().__init__()
         
-        tk.Tk.__init__(self, *args, **kwargs)
-
-        tk.Tk.wm_title(self, "Sea of BTC client")
+        self.initUI()
         
         
-        container = tk.Frame(self)
-        container.pack(side="top", fill="both", expand = True)
-        container.grid_rowconfigure(0, weight=1)
-        container.grid_columnconfigure(0, weight=1)
-
-        self.frames = {}
-
-        for F in (StartPage, PageOne, PageTwo, PageThree):
-
-            frame = F(container, self)
-
-            self.frames[F] = frame
-
-            frame.grid(row=0, column=0, sticky="nsew")
-
-        self.show_frame(StartPage)
-
-    def show_frame(self, cont):
-
-        frame = self.frames[cont]
-        frame.tkraise()
-
+    def initUI(self):
         
-class StartPage(tk.Frame):
-
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self,parent)
-        label = tk.Label(self, text="Start Page", font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-
-        button = ttk.Button(self, text="Visit Page 1",
-                            command=lambda: controller.show_frame(PageOne))
-        button.pack()
-
-        button2 = ttk.Button(self, text="Visit Page 2",
-                            command=lambda: controller.show_frame(PageTwo))
-        button2.pack()
-
-        button3 = ttk.Button(self, text="Graph Page",
-                            command=lambda: controller.show_frame(PageThree))
-        button3.pack()
+        self.setMinimumSize(1, 30)
+        self.value = 75
+        self.num = [75, 150, 225, 300, 375, 450, 525, 600, 675]
 
 
-class PageOne(tk.Frame):
+    def setValue(self, value):
 
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Page One!!!", font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
-
-        button1 = ttk.Button(self, text="Back to Home",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()
-
-        button2 = ttk.Button(self, text="Page Two",
-                            command=lambda: controller.show_frame(PageTwo))
-        button2.pack()
+        self.value = value
 
 
-class PageTwo(tk.Frame):
+    def paintEvent(self, e):
+      
+        qp = QPainter()
+        qp.begin(self)
+        self.drawWidget(qp)
+        qp.end()
+      
+      
+    def drawWidget(self, qp):
+      
+        font = QFont('Serif', 7, QFont.Light)
+        qp.setFont(font)
 
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Page Two!!!", font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
+        size = self.size()
+        w = size.width()
+        h = size.height()
 
-        button1 = ttk.Button(self, text="Back to Home",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()
-
-        button2 = ttk.Button(self, text="Page One",
-                            command=lambda: controller.show_frame(PageOne))
-        button2.pack()
+        step = int(round(w / 10.0))
 
 
-class PageThree(tk.Frame):
+        till = int(((w / 750.0) * self.value))
+        full = int(((w / 750.0) * 700))
 
-    def __init__(self, parent, controller):
-        tk.Frame.__init__(self, parent)
-        label = tk.Label(self, text="Graph Page!", font=LARGE_FONT)
-        label.pack(pady=10,padx=10)
+        if self.value >= 700:
+            
+            qp.setPen(QColor(255, 255, 255))
+            qp.setBrush(QColor(255, 255, 184))
+            qp.drawRect(0, 0, full, h)
+            qp.setPen(QColor(255, 175, 175))
+            qp.setBrush(QColor(255, 175, 175))
+            qp.drawRect(full, 0, till-full, h)
+            
+        else:
+            
+            qp.setPen(QColor(255, 255, 255))
+            qp.setBrush(QColor(255, 255, 184))
+            qp.drawRect(0, 0, till, h)
 
-        button1 = ttk.Button(self, text="Back to Home",
-                            command=lambda: controller.show_frame(StartPage))
-        button1.pack()
 
-        f = Figure(figsize=(5,5), dpi=100)
-        a = f.add_subplot(111)
-        a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
+        pen = QPen(QColor(20, 20, 20), 1, 
+            Qt.SolidLine)
+            
+        qp.setPen(pen)
+        qp.setBrush(Qt.NoBrush)
+        qp.drawRect(0, 0, w-1, h-1)
 
+        j = 0
+
+        for i in range(step, 10*step, step):
+          
+            qp.drawLine(i, 0, i, 5)
+            metrics = qp.fontMetrics()
+            fw = metrics.width(str(self.num[j]))
+            qp.drawText(i-fw/2, h/2, str(self.num[j]))
+            j = j + 1
+            
+
+class Example(QWidget):
+    
+    def __init__(self):
+        super().__init__()
         
-
-        canvas = FigureCanvasTkAgg(f, self)
-        canvas.show()
-        canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
-
-        toolbar = NavigationToolbar2TkAgg(canvas, self)
-        toolbar.update()
-        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
+        self.initUI()
         
+        
+    def initUI(self):      
 
-app = SeaofBTCapp()
-app.mainloop()
+        sld = QSlider(Qt.Horizontal, self)
+        sld.setFocusPolicy(Qt.NoFocus)
+        sld.setRange(1, 750)
+        sld.setValue(75)
+        sld.setGeometry(30, 40, 150, 30)
+
+        self.c = Communicate()        
+        self.wid = BurningWidget()
+        self.c.updateBW[int].connect(self.wid.setValue)
+
+        sld.valueChanged[int].connect(self.changeValue)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.wid)
+        vbox = QVBoxLayout()
+        vbox.addStretch(1)
+        vbox.addLayout(hbox)
+        self.setLayout(vbox)
+        
+        self.setGeometry(300, 300, 390, 210)
+        self.setWindowTitle('Burning widget')
+        self.show()
+        
+        
+    def changeValue(self, value):
+             
+        self.c.updateBW.emit(value)        
+        self.wid.repaint()
+        
+        
+if __name__ == '__main__':
+    
+    app = QApplication(sys.argv)
+    ex = Example()
+    sys.exit(app.exec_())
