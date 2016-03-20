@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-19 11:08:57
+# @Last Modified time: 2016-03-20 19:53:14
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -503,12 +503,13 @@ class Menu(QtWidgets.QMainWindow):
         self.goRouteButton.resize(self.goRouteButton.sizeHint())
         self.goRouteButton.clicked.connect(self.goRoute)
 
-        self.emergencyStop = QtWidgets.QPushButton('emergency Stop', self)
-        self.emergencyStop.setToolTip('<b>click</b> to force it stop.')
-        self.emergencyStop.resize(self.emergencyStop.sizeHint())
-        self.emergencyStop.clicked.connect(self.emergencyStop)
+        self.emergencyButton = QtWidgets.QPushButton('emergency Stop', self)
+        self.emergencyButton.setToolTip('<b>click</b> to force it stop.')
+        self.emergencyButton.resize(self.emergencyButton.sizeHint())
+        self.emergencyButton.clicked.connect(self.emergencyStop)
 
-        self.funcButtonBar.addWidget(self.menuButton)
+        self.funcButtonBar.addWidget(self.goRouteButton)
+        self.funcButtonBar.addWidget(self.emergencyButton)
         self.extension.addLayout(self.funcButtonBar)
 
         self.main_widget.setFocus()
@@ -519,7 +520,7 @@ class Menu(QtWidgets.QMainWindow):
     def goRoute(self):
         try:
             if not self.runningFlag:
-                self.transport.write("10")
+                self.transport.write("43")
                 self.runningFlag = True
             else:
                 raise Exception
