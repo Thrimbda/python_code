@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-20 19:53:14
+# @Last Modified time: 2016-03-20 21:16:37
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -125,8 +125,12 @@ class Graph():
         self.fig.tight_layout()
 
     def calculator(self):
-        if len(self.X_data) < 4:
+        if len(self.X_data) < 3:
             self.Speed_X = self.Speed_Y = self.Speed = 0
+        elif self.t_data[-1] - self.t_data[-2] == 0:
+            self.Speed_X = self.Speed_X_data[-1]
+            self.Speed_Y = self.Speed_Y_data[-1]
+            self.Speed = self.Speed_data[-1]
         else:
             self.Speed_X = (self.X_data[-1] - self.X_data[-2]) / (self.t_data[-1] - self.t_data[-2])
             self.Speed_Y = (self.Y_data[-1] - self.Y_data[-2]) / (self.t_data[-1] - self.t_data[-2])
@@ -260,8 +264,10 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
 
         # self.extensionLayout = QtWidgets.QGridLayout()
 
-        self.hBox = QtWidgets.QHBoxLayout()
-        self.hBox.addStretch(1)
+        self.hBox1 = QtWidgets.QHBoxLayout()
+        self.hBox1.addStretch(1)
+        self.hBox2 = QtWidgets.QHBoxLayout()
+        self.hBox2.addStretch(1)
         self.vBox = QtWidgets.QVBoxLayout(self.main_widget)
         self.vBox.addStretch(1)
 
@@ -271,7 +277,7 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.vBox.addWidget(self.canvas)
         self.vBox.addWidget(self.toolbar)
         self.combo = QtWidgets.QComboBox(self)
-        self.hBox.addWidget(self.combo)
+        self.hBox1.addWidget(self.combo)
         self.checkModel()
 
         self.serialButton = QtWidgets.QPushButton('Open', self)
@@ -302,12 +308,13 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.clearButton.setToolTip('<b>click</b> to clear the Figure.')
         self.clearButton.resize(self.clearButton.sizeHint())
 
-        self.hBox.addWidget(self.serialButton)
-        self.hBox.addWidget(self.plotButton)
-        self.hBox.addWidget(self.recordButton)
-        self.hBox.addWidget(self.clearButton)
-        self.hBox.addWidget(self.menuButton)
-        self.vBox.addLayout(self.hBox)
+        self.hBox1.addWidget(self.serialButton)
+        self.hBox1.addWidget(self.plotButton)
+        self.hBox1.addWidget(self.recordButton)
+        self.hBox1.addWidget(self.clearButton)
+        self.hBox2.addWidget(self.menuButton)
+        self.vBox.addLayout(self.hBox2)
+        self.vBox.addLayout(self.hBox1)
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
@@ -489,6 +496,7 @@ class Menu(QtWidgets.QMainWindow):
 
         self.setWindowTitle('Menu')
         self.statusBar().showMessage('Good luck with adjusting!')
+        self.setGeometry(500, 300, 500, 309)
 
         self.transport = SerialCtl()
 
@@ -497,6 +505,11 @@ class Menu(QtWidgets.QMainWindow):
         self.extension.addStretch(1)
         self.funcButtonBar = QtWidgets.QHBoxLayout()
         self.funcButtonBar.addStretch(1)
+
+        self.label = QtWidgets.QLabel(self)
+        self.label.setFont(QtGui.QFont("Myriad Set", 45, QtGui.QFont.Bold))
+        self.label.setText("This is it!")
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.goRouteButton = QtWidgets.QPushButton('go Route', self)
         self.goRouteButton.setToolTip('<b>click</b> to go route.')
@@ -514,6 +527,9 @@ class Menu(QtWidgets.QMainWindow):
 
         self.main_widget.setFocus()
         self.setCentralWidget(self.main_widget)
+        self.setStyleSheet("QLabel{text-align:center;}"
+                           "QLabel{margin:auto;}")
+        self.label.adjustSize()
 
         self.runningFlag = False
 
