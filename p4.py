@@ -2,7 +2,7 @@ import os
 import numpy as np
 
 with open(os.path.split(os.path.realpath(__file__))[0] + '/PointRoute.c', 'r') as rfileobj:
-    with open(os.path.split(os.path.realpath(__file__))[0] + '/Fmt_PointRoute1.txt', 'w') as wfileobj:
+    with open(os.path.split(os.path.realpath(__file__))[0] + '/Fmt_RouteRed.txt', 'w') as wfileobj:
         db = rfileobj.readlines()[4239:8459:10]
         for item in db:
             line = item.replace('{', '').replace('}', '').replace(' ', '').split(',')

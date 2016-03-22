@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-22 19:56:03
+# @Last Modified time: 2016-03-22 20:24:57
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -88,7 +88,8 @@ class Graph():
         self.ax5.set_title("speed:total")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)     #lw is linewidth
-        self.std_route, = self.ax1.plot([], [], '#5DCB43', lw=2)
+        self.stdB_route, = self.ax1.plot([], [], '#5DCB43', lw=2)
+        self.stdR_route, = self.ax1.plot([], [], '#5DCB43', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
@@ -97,7 +98,7 @@ class Graph():
         self.ax1.set_xlim(xmin, xmax)
         self.ax1.set_ylim(ymin, ymax)
         # 对各图数据初始化
-        self.std_X_data, self.std_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], []
+        self.stdB_X_data, self.stdB_Y_data, self.stdR_X_data, self.stdR_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], [], [], []
         self.timeNode = []
         # 设定各图实时数据位置
         # self.Angle_display = self.ax1.text(-13900, 13700, '')
@@ -105,25 +106,19 @@ class Graph():
         # self.Speed_Y_display = self.ax4.text(250, 950, '')
         # self.Speed_display = self.ax5.text(250, 950, '')
         # 打开文件
-        with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_RouteBlue.txt', 'r') as self.std_fobj:
-            self.database = self.std_fobj.readlines()
+        with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_RouteBlue.txt', 'r') as self.stdB_fobj:
+            self.database = self.stdB_fobj.readlines()
         for item in self.database:
             self.info = tuple(eval(item))
-            print(self.info)
-            self.std_X, self.std_Y, self.std_A, self.std_Speed_X, self.std_Speed_Y, self.std_Speed = self.info
-            self.std_X_data.append(self.std_X)
-            self.std_Y_data.append(-self.std_Y)
-        self.std_route.set_data(self.std_X_data, self.std_Y_data)
+            self.stdB_X, self.stdB_Y, self.stdB_A, self.stdB_Speed_X, self.stdB_Speed_Y, self.stdB_Speed = self.info
+            self.stdB_X_data.append(self.stdB_X)
+            self.stdB_Y_data.append(-self.stdB_Y)
+        self.stdB_route.set_data(self.stdB_X_data, self.stdB_Y_data)
 
-        with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_RouteRed.txt', 'r') as self.std_fobj:
-            self.database = self.std_fobj.readlines()
-        for item in self.database:
-            self.info = tuple(eval(item))
-            print(self.info)
-            self.std_X, self.std_Y, self.std_A, self.std_Speed_X, self.std_Speed_Y, self.std_Speed = self.info
-            self.std_X_data.append(self.std_X)
-            self.std_Y_data.append(-self.std_Y)
-        self.std_route.set_data(self.std_X_data, self.std_Y_data)
+        for item in range(0, len(self.database)):
+            self.stdR_X_data.append(-self.stdB_X_data[item]-14000)
+            self.stdR_Y_data.append(self.stdB_Y_data[item])
+        self.stdR_route.set_data(self.stdR_X_data, self.stdR_Y_data)
         # self.fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/route4.txt', 'r')     #this function will get the dir where the script is
 
         self.ax2.set_ylim(0, 50)
@@ -176,7 +171,7 @@ class Graph():
         # self.Speed_X_display.set_text('')
         # self.Speed_Y_display.set_text('')
         # self.Speed_display.set_text('')
-        return self.std_route, self.route, self.angle, self.speed_x, self.speed_y, self.speed  #, self.Speed_X_display, self.Angle_display, self.Speed_Y_display, self.Speed_display
+        return self.stdR_route, self.stdB_route, self.route, self.angle, self.speed_x, self.speed_y, self.speed  #, self.Speed_X_display, self.Angle_display, self.Speed_Y_display, self.Speed_display
 
     def clear(self):
         self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data = [], [], [], [], [], []
@@ -624,7 +619,7 @@ if __name__ == '__main__':
 # problem:                                           #
 #   1. Clear function dosen't work correctly.        #
 #                                                    #
-# blueprinr:                                         #
+# blueprint:                                         #
 #   1. Now that we are able to use uart to transport #
 #      data from PC to cart, which means that it is  #
 #      possible control cart by PC. It'll including  #
