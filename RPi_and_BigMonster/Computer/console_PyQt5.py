@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-20 21:16:37
+# @Last Modified time: 2016-03-22 19:56:03
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -18,6 +18,7 @@ import serial       #串口模块
 import os
 import platform
 import struct
+import time
 
 pf = platform.system()      #识别当前工作环境
 
@@ -87,7 +88,7 @@ class Graph():
         self.ax5.set_title("speed:total")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)     #lw is linewidth
-        self.std_route, = self.ax1.plot([], [], 'r-', lw=2)
+        self.std_route, = self.ax1.plot([], [], '#5DCB43', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
@@ -104,13 +105,24 @@ class Graph():
         # self.Speed_Y_display = self.ax4.text(250, 950, '')
         # self.Speed_display = self.ax5.text(250, 950, '')
         # 打开文件
-        with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_PointRoute.txt', 'r') as self.std_fobj:
-            self.database = self.std_fobj.readlines()[1:]
+        with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_RouteBlue.txt', 'r') as self.std_fobj:
+            self.database = self.std_fobj.readlines()
         for item in self.database:
-            self.type, self.info = tuple(eval(item))
+            self.info = tuple(eval(item))
+            print(self.info)
             self.std_X, self.std_Y, self.std_A, self.std_Speed_X, self.std_Speed_Y, self.std_Speed = self.info
             self.std_X_data.append(self.std_X)
-            self.std_Y_data.append(self.std_Y)
+            self.std_Y_data.append(-self.std_Y)
+        self.std_route.set_data(self.std_X_data, self.std_Y_data)
+
+        with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_RouteRed.txt', 'r') as self.std_fobj:
+            self.database = self.std_fobj.readlines()
+        for item in self.database:
+            self.info = tuple(eval(item))
+            print(self.info)
+            self.std_X, self.std_Y, self.std_A, self.std_Speed_X, self.std_Speed_Y, self.std_Speed = self.info
+            self.std_X_data.append(self.std_X)
+            self.std_Y_data.append(-self.std_Y)
         self.std_route.set_data(self.std_X_data, self.std_Y_data)
         # self.fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/route4.txt', 'r')     #this function will get the dir where the script is
 
@@ -536,6 +548,12 @@ class Menu(QtWidgets.QMainWindow):
     def goRoute(self):
         try:
             if not self.runningFlag:
+                self.transport.write("6")
+                time.sleep(0.1)
+                self.transport.write("4")
+                time.sleep(0.1)
+                self.transport.write("6")
+                time.sleep(0.1)
                 self.transport.write("43")
                 self.runningFlag = True
             else:

@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-12 09:58:53
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-14 22:45:07
+# @Last Modified time: 2016-03-21 21:56:33
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -10,7 +10,7 @@ import copy
 
 # V = np.arange(10)
 # E = np.random.randint(1, 50, size=[10, 10])
-sizePop = 10
+sizePop = 50
 
 V = list(zip(np.random.random(sizePop)*100, np.random.random(sizePop)*100))
 E = np.zeros([sizePop, sizePop])
@@ -164,6 +164,13 @@ class GA:
             self.aveFitness = np.mean(self.fitness)
             self.trace[self.t, 0] = (1 - self.best[0])/self.best[0]
             self.trace[self.t, 1] = (1 - self.aveFitness)/self.aveFitness
+            self.x_data, self.y_data = [], []
+            for i in self.best[2].cityIndex:
+                self.x_data.append(V[i][0])
+                self.y_data.append(V[i][1])
+            self.x_data.append(V[self.best[2].cityIndex[0]][0])
+            self.y_data.append(V[self.best[2].cityIndex[0]][1])
+            yield V[i][0], V[i][1], self.best[2].length
 
         self.done = True
         print('done')
@@ -173,7 +180,7 @@ class GA:
 
 class PlotGraph(GA):
     def __init__(self, sizePop, dimention, bound, maxGen, params):
-        super.__init__(sizePop, dimention, bound, maxGen, params)
+        GA.__init__(self, sizePop, dimention, bound, maxGen, params)
         global V
         self.fig = plt.figure(figsize=(10, 10))
         self.ax = self.fig.add_subplot(111)
@@ -210,6 +217,6 @@ class PlotGraph(GA):
 
 if __name__ == '__main__':
     bound = np.tile([[0], [sizePop-1]], sizePop)
-    ga = GA(100, sizePop, bound, 2000, [0.1, 0.9, 0.25])
+    ga = PlotGraph(100, sizePop, bound, 2000, [0.1, 0.9, 0.25])
     ga.animationInit()
     plt.show()
