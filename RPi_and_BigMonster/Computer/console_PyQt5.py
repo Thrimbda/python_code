@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-22 20:24:57
+# @Last Modified time: 2016-03-22 21:21:08
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -88,8 +88,8 @@ class Graph():
         self.ax5.set_title("speed:total")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)     #lw is linewidth
-        self.stdB_route, = self.ax1.plot([], [], '#5DCB43', lw=2)
-        self.stdR_route, = self.ax1.plot([], [], '#5DCB43', lw=2)
+        self.stdB_route, = self.ax1.plot([], [], 'b-', lw=2)
+        self.stdR_route, = self.ax1.plot([], [], 'r-', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
