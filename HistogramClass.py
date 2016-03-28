@@ -2,11 +2,11 @@
 # @Author: Macpotty
 # @Date:   2016-03-25 00:03:29
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-25 01:41:10
+# @Last Modified time: 2016-03-25 18:34:43
 import numpy as np
 import matplotlib.pyplot as plt
 
-fileName = "/home/michael/Documents/Data/javaSelect.txt"
+fileName = "/home/michael/Documents/Data/javaFibonacci.txt"
 
 data = []
 data.append(np.loadtxt(fileName, delimiter="\n"))
