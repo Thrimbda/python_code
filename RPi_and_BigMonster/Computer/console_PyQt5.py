@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-29 17:33:26
+# @Last Modified time: 2016-03-29 19:52:26
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -101,6 +101,7 @@ class Graph():
         self.ax1.set_ylim(ymin, ymax)
         # 对各图数据初始化
         self.stdB_X_data, self.stdB_Y_data, self.stdR_X_data, self.stdR_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], [], [], []
+        self.encoder1_data, self.encoder2_data = [], []
         self.timeNode = []
         # 设定各图实时数据位置
         # self.Angle_display = self.ax1.text(-13900, 13700, '')
@@ -198,13 +199,16 @@ class Graph():
                     self.type = 'bad_datatype'
                     print(self.type)
                 else:
-                    self.X, self.Y, self.A, self.t = self.info[0], self.info[1], self.info[2], self.info[3]
+                    self.X, self.Y, self.A, self.t = self.info[0], self.info[1], self.info[2], self.info[-2]
+                    self.encoder1, self.encoder2 = self.info[3], self.info[4]
                     self.calculator()
                     # print(self.info)
                     self.t_data.append(self.t)
                     self.X_data.append(self.X)
                     self.Y_data.append(self.Y)
                     self.A_data.append(self.A)
+                    self.encoder1_data.append(self.encoder1)
+                    self.encoder2_data.append(self.encoder2)
                     self.Speed_X_data.append(self.Speed_X)
                     self.Speed_Y_data.append(self.Speed_Y)
                     self.Speed_data.append(self.Speed)
@@ -264,12 +268,16 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.file_menu = self.menubar.addMenu('&File')
         self.file_menu.addAction('&SavePoint', self.saveroute,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_S)
+        self.file_menu.addAction('&saveEncoder', self.saveEncoder,
+                                 QtCore.Qt.CTRL + QtCore.Qt.Key_D)
         self.file_menu.addAction('&Quit', self.fileQuit,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_Q)
         self.help_menu = self.menubar.addMenu('&Help')
         self.help_menu.addAction('About', self.aboutMessage)
 
         self.main_widget = QtWidgets.QWidget(self)
+
+        self.closeSignal = Communicator()
 
         # self.extensionLayout = QtWidgets.QGridLayout()
 
@@ -410,7 +418,7 @@ This is a program for cart adjusting. function completing.""")
 
     def saveroute(self):
         if len(self.graph.timeNode) != 0:
-            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File')
+            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save timeNode File')
             try:
                 with open(fname[0], 'w') as self.fobj:
                     self.fobj.write(self.graph.timeCount())
@@ -436,6 +444,22 @@ This is a program for cart adjusting. function completing.""")
         # else:
         #     self.warning('No new data received!')
         #----------------------------------------------------------------------------------------------------------------------
+
+    def saveEncoder(self):
+        if len(self.graph.encoder1_data) != 0:
+            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save encoder File')
+            try:
+                with open(fname[0], 'w') as self.fobj:
+                    self.encoderData = list(zip(self.graph.X_data, self.graph.Y_data, self.graph.A_data, self.graph.encoder1_data, self.graph.encoder2_data))
+                    for item in self.encoderData:
+                        self.fobj.write(str(item) + '\n')
+                    self.information('successful saved.')
+                    self.savedFlag = True
+            except Exception:
+                self.warning('failed to operation the file.')
+                print(Exception)
+        else:
+            self.warning('no time Data recorded.')
 
     def serialOperation(self, pressed):
         # try:
