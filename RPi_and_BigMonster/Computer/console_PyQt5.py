@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-22 21:21:08
+# @Last Modified time: 2016-03-29 17:33:26
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -57,8 +57,10 @@ class SerialCtl():      #serial Initialization
 
     def writeCmd(self, string):
         string = eval(string)
-        string = struct("H", string)
-        self.ser.write(str)
+        string = struct.pack("H", string)
+        print(string)
+        print(type(string))
+        self.ser.write(string)
 
 
 class Graph():
@@ -145,19 +147,19 @@ class Graph():
 
     def timeCount(self):
         if len(self.timeNode) != 0:
-            time = ""
+            timeRecord = ""
             for i in range(len(self.timeNode)):
                 if i == 0:
-                    time += ("大车路径点记录：\n第%.1f秒大车启动\n" % (self.timeNode[i]))
+                    timeRecord += ("大车路径点记录：\n第%.1f秒大车启动\n" % (self.timeNode[i]))
                 else:
-                    time += ("第%d段路径用时%.1f秒\n" % (i, self.timeNode[i]-self.timeNode[i-1]))
+                    timeRecord += ("第%d段路径用时%.1f秒\n" % (i, self.timeNode[i]-self.timeNode[i-1]))
             if len(self.timeNode) == 19:
-                time += ("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0], self.timeNode[18]-self.timeNode[17], self.timeNode[18]-self.timeNode[0]))
+                timeRecord += ("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0], self.timeNode[18]-self.timeNode[17], self.timeNode[18]-self.timeNode[0]))
             else:
-                time += ("总计用时%.1f秒" % (self.timeNode[-1]-self.timeNode[0]))
+                timeRecord += ("总计用时%.1f秒" % (self.timeNode[-1]-self.timeNode[0]))
         else:
-            time = "no data in the record"
-        return time
+            timeRecord = "no data in the record"
+        return timeRecord
 
     def init(self):         # 动画初始化
 
@@ -342,11 +344,13 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
     def fileQuit(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
             if self.saveEnsure('Do you want to save data before exit?'):
+                self.closeSignal.signal.emit()
                 sys.exit()
             else:
                 pass
         else:
             if self.actionEnsure('Are you sure want to quit?'):
+                self.closeSignal.signal.emit()
                 sys.exit()
             else:
                 pass
@@ -359,11 +363,13 @@ This is a program for cart adjusting. function completing.""")
     def closeEvent(self, event):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
             if self.saveEnsure('Do you want to save data before exit?'):
+                self.closeSignal.signal.emit()
                 event.accept()
             else:
                 event.ignore()
         else:
             if self.actionEnsure('Are you sure want to quit?'):
+                self.closeSignal.signal.emit()
                 event.accept()
             else:
                 event.ignore()
@@ -490,12 +496,18 @@ This is a program for cart adjusting. function completing.""")
         self.information(self.graph.timeCount(), "Timer")
 
     def showMenu(self):
-        self.menu = Menu()
+        self.menu = Menu(self.graph.ser)
         self.menu.show()
+        self.closeSignal = Communicator()
+        self.closeSignal.signal.connect(self.menu.close)
+
+
+class Communicator(QtCore.QObject):
+    signal = QtCore.pyqtSignal()
 
 
 class Menu(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, serObj):
         QtWidgets.QMainWindow.__init__(self)
 
         QtWidgets.QToolTip.setFont(QtGui.QFont('Myriad Set'))       #set text-font
@@ -505,7 +517,7 @@ class Menu(QtWidgets.QMainWindow):
         self.statusBar().showMessage('Good luck with adjusting!')
         self.setGeometry(500, 300, 500, 309)
 
-        self.transport = SerialCtl()
+        self.transport = serObj
 
         self.main_widget = QtWidgets.QWidget(self)
         self.extension = QtWidgets.QVBoxLayout(self.main_widget)
@@ -543,13 +555,7 @@ class Menu(QtWidgets.QMainWindow):
     def goRoute(self):
         try:
             if not self.runningFlag:
-                self.transport.write("6")
-                time.sleep(0.1)
-                self.transport.write("4")
-                time.sleep(0.1)
-                self.transport.write("6")
-                time.sleep(0.1)
-                self.transport.write("43")
+                self.transport.writeCmd("43")
                 self.runningFlag = True
             else:
                 raise Exception
@@ -558,7 +564,7 @@ class Menu(QtWidgets.QMainWindow):
 
     def emergencyStop(self):
         try:
-            self.transport.write("6")
+            self.transport.writeCmd("6")
         except Exception:
             pass
 
