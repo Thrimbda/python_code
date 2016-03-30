@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-29 19:52:26
+# @Last Modified time: 2016-03-30 02:11:53
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -18,7 +18,6 @@ import serial       #串口模块
 import os
 import platform
 import struct
-import time
 
 pf = platform.system()      #识别当前工作环境
 
@@ -102,6 +101,7 @@ class Graph():
         # 对各图数据初始化
         self.stdB_X_data, self.stdB_Y_data, self.stdR_X_data, self.stdR_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], [], [], []
         self.encoder1_data, self.encoder2_data = [], []
+        self.optimalX_data, self.optimalY_data = [], []
         self.timeNode = []
         # 设定各图实时数据位置
         # self.Angle_display = self.ax1.text(-13900, 13700, '')
@@ -134,6 +134,13 @@ class Graph():
 
         self.fig.tight_layout()
 
+        #Kalman Filter params
+        self.optimalX = 0
+        self.optimalY = 0
+        self.covariance = 10
+        self.paramP = np.cov(np.random.randn(1, len(self.stdR_X_data)))
+        self.paramQ = np.cov(np.random.randn(1, len(self.stdR_X_data)))
+
     def calculator(self):
         if len(self.X_data) < 3:
             self.Speed_X = self.Speed_Y = self.Speed = 0
@@ -145,6 +152,22 @@ class Graph():
             self.Speed_X = (self.X_data[-1] - self.X_data[-2]) / (self.t_data[-1] - self.t_data[-2])
             self.Speed_Y = (self.Y_data[-1] - self.Y_data[-2]) / (self.t_data[-1] - self.t_data[-2])
             self.Speed = np.sqrt(self.Speed_X ** 2 + self.Speed_Y ** 2)
+
+    def kalmanFilter(self):
+        if len(self.X_data) < 2:
+            self.predictX = self.optimalX
+            self.predictY = self.optimalY
+        else:
+            self.predictX = self.optimalX + self.stdB_X_data[len(self.X_data)] - self.stdB_X_data[len(self.X_data) - 1]
+            self.predictY = self.optimalY + self.stdB_Y_data[len(self.Y_data)] - self.stdB_Y_data[len(self.Y_data) - 1]
+        self.covariance += self.paramQ
+        Kg = self.covariance/(self.covariance + self.paramQ)
+        self.optimalX = self.predictX + Kg * (self.X_data[-1] - self.predictX)
+        self.optimalY = self.predictY + Kg * (self.Y_data[-1] - self.predictY)
+        self.covariance = (1 - Kg)/self.covariance
+        self.optimalX_data.append(self.optimalX)
+        self.optimalY_data.append(self.optimalY)
+        #协方差怎么算
 
     def timeCount(self):
         if len(self.timeNode) != 0:
