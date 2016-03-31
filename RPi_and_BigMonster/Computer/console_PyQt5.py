@@ -3,12 +3,13 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-30 02:11:53
+# @Last Modified time: 2016-03-31 17:16:54
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
 import sys
 import numpy as np
+from scipy import signal
 import matplotlib.pyplot as plt         #绘图模块
 import matplotlib.animation as animation        #动画模块
 import matplotlib.gridspec as gridspec          #分块模块
@@ -95,6 +96,10 @@ class Graph():
         self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
         self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
         self.speed, = self.ax5. plot([], [], 'b-', lw=2)
+
+        self.KalmanSpeed_x, = self.ax3.plot([], [], 'g-', lw=2)
+        self.KalmanSpeed_y, = self.ax4.plot([], [], 'g-', lw=2)
+        self.KalmanSpeed, = self.ax5.plot([], [], 'g-', lw=2)
         # 设定路径图长宽
         self.ax1.set_xlim(xmin, xmax)
         self.ax1.set_ylim(ymin, ymax)
@@ -102,6 +107,7 @@ class Graph():
         self.stdB_X_data, self.stdB_Y_data, self.stdR_X_data, self.stdR_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], [], [], []
         self.encoder1_data, self.encoder2_data = [], []
         self.optimalX_data, self.optimalY_data = [], []
+        self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data = [], [], []
         self.timeNode = []
         # 设定各图实时数据位置
         # self.Angle_display = self.ax1.text(-13900, 13700, '')
@@ -134,39 +140,42 @@ class Graph():
 
         self.fig.tight_layout()
 
-        #Kalman Filter params
+        # Filter params
+        self.signalGain, self.bandwidth = signal.butter(1, 0.08, 'low')
+
         self.optimalX = 0
         self.optimalY = 0
         self.covariance = 10
         self.paramP = np.cov(np.random.randn(1, len(self.stdR_X_data)))
         self.paramQ = np.cov(np.random.randn(1, len(self.stdR_X_data)))
 
-    def calculator(self):
-        if len(self.X_data) < 3:
-            self.Speed_X = self.Speed_Y = self.Speed = 0
+    def speedCalculator(self, col_data, ver_data, colSpeed_data, verSpeed_data, speed_data):
+        if len(self.t_data) < 3:
+            colSpeed = verSpeed = speed = 0
+            return colSpeed, verSpeed, speed
         elif self.t_data[-1] - self.t_data[-2] == 0:
-            self.Speed_X = self.Speed_X_data[-1]
-            self.Speed_Y = self.Speed_Y_data[-1]
-            self.Speed = self.Speed_data[-1]
+            colSpeed = colSpeed_data[-1]
+            verSpeed = verSpeed_data[-1]
+            speed = speed_data[-1]
+            return colSpeed, verSpeed, speed
         else:
-            self.Speed_X = (self.X_data[-1] - self.X_data[-2]) / (self.t_data[-1] - self.t_data[-2])
-            self.Speed_Y = (self.Y_data[-1] - self.Y_data[-2]) / (self.t_data[-1] - self.t_data[-2])
-            self.Speed = np.sqrt(self.Speed_X ** 2 + self.Speed_Y ** 2)
+            colSpeed = (col_data[-1] - col_data[-2]) / (self.t_data[-1] - self.t_data[-2])
+            verSpeed = (ver_data[-1] - ver_data[-2]) / (self.t_data[-1] - self.t_data[-2])
+            speed = np.sqrt(colSpeed ** 2 + verSpeed ** 2)
+            return colSpeed, verSpeed, speed
 
     def kalmanFilter(self):
         if len(self.X_data) < 2:
             self.predictX = self.optimalX
             self.predictY = self.optimalY
         else:
-            self.predictX = self.optimalX + self.stdB_X_data[len(self.X_data)] - self.stdB_X_data[len(self.X_data) - 1]
-            self.predictY = self.optimalY + self.stdB_Y_data[len(self.Y_data)] - self.stdB_Y_data[len(self.Y_data) - 1]
-        self.covariance += self.paramQ
-        Kg = self.covariance/(self.covariance + self.paramQ)
-        self.optimalX = self.predictX + Kg * (self.X_data[-1] - self.predictX)
-        self.optimalY = self.predictY + Kg * (self.Y_data[-1] - self.predictY)
-        self.covariance = (1 - Kg)/self.covariance
-        self.optimalX_data.append(self.optimalX)
-        self.optimalY_data.append(self.optimalY)
+            self.predictX = self.optimalX + self.stdB_X_data[len(self.X_data) - 1] - self.stdB_X_data[len(self.X_data) - 2]
+            self.predictY = self.optimalY + self.stdB_Y_data[len(self.Y_data) - 1] - self.stdB_Y_data[len(self.Y_data) - 2]
+            self.covariance += self.paramQ
+            Kg = self.covariance/(self.covariance + self.paramQ)
+            self.optimalX = self.predictX + Kg * (self.X_data[-1] - self.predictX)
+            self.optimalY = self.predictY + Kg * (self.Y_data[-1] - self.predictY)
+            self.covariance = (1 - Kg)/self.covariance
         #协方差怎么算
 
     def timeCount(self):
@@ -193,11 +202,15 @@ class Graph():
         self.speed_y.set_data([], [])
         self.speed.set_data([], [])
 
+        self.KalmanSpeed_x.set_data([], [])
+        self.KalmanSpeed_y.set_data([], [])
+        self.KalmanSpeed.set_data([], [])
+
         # self.Angle_display.set_text('')
         # self.Speed_X_display.set_text('')
         # self.Speed_Y_display.set_text('')
         # self.Speed_display.set_text('')
-        return self.stdR_route, self.stdB_route, self.route, self.angle, self.speed_x, self.speed_y, self.speed  #, self.Speed_X_display, self.Angle_display, self.Speed_Y_display, self.Speed_display
+        return self.stdR_route, self.stdB_route, self.route, self.angle, self.speed_x, self.speed_y, self.speed, self.KalmanSpeed_x, self.KalmanSpeed_y  #, self.Speed_X_display, self.Angle_display, self.Speed_Y_display, self.Speed_display
 
     def clear(self):
         self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data = [], [], [], [], [], []
@@ -224,8 +237,9 @@ class Graph():
                 else:
                     self.X, self.Y, self.A, self.t = self.info[0], self.info[1], self.info[2], self.info[-2]
                     self.encoder1, self.encoder2 = self.info[3], self.info[4]
-                    self.calculator()
-                    # print(self.info)
+                    self.Speed_X, self.Speed_Y, self.Speed = self.speedCalculator(self.X_data, self.Y_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data)
+                    # self.kalmanFilter()
+                    # self.optimalColSpeed, self.optimalVerSpeed, self.optimalSpeed = self.speedCalculator(self.optimalX_data, self.optimalY_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalVerSpeed_data)
                     self.t_data.append(self.t)
                     self.X_data.append(self.X)
                     self.Y_data.append(self.Y)
@@ -235,6 +249,21 @@ class Graph():
                     self.Speed_X_data.append(self.Speed_X)
                     self.Speed_Y_data.append(self.Speed_Y)
                     self.Speed_data.append(self.Speed)
+
+                    # self.optimalX_data.append(self.optimalX)
+                    # self.optimalY_data.append(self.optimalY)
+                    if (len(self.t_data)) < 7:
+                        self.optimalColSpeed_data = self.Speed_X_data
+                        self.optimalVerSpeed_data = self.Speed_Y_data
+                        self.optimalSpeed_data = self.Speed_data
+                    else:
+                        self.optimalColSpeed_data = signal.filtfilt(self.signalGain, self.bandwidth, self.Speed_X_data)
+                        self.optimalVerSpeed_data = signal.filtfilt(self.signalGain, self.bandwidth, self.Speed_Y_data)
+                        self.optimalSpeed_data = signal.filtfilt(self.signalGain, self.bandwidth, self.Speed_data)
+                    # self.optimalColSpeed_data.append(self.optimalColSpeed)
+                    # self.optimalVerSpeed_data.append(self.optimalVerSpeed)
+                    # self.optimalSpeed_data.append(self.optimalSpeed)
+
                     # self.Angle_display.set_text('Angle = %.2f' % (self.A))
                     # self.Speed_X_display.set_text('Speed_X = %.2f' % self.Speed_X)
                     # self.Speed_Y_display.set_text('Speed_Y = %.2f' % self.Speed_Y)
@@ -262,7 +291,11 @@ class Graph():
         self.speed_y.set_data(self.t_data, self.Speed_Y_data)
         self.speed.set_data(self.t_data, self.Speed_data)
 
-        return self.route, self.angle, self.speed_x, self.speed_y, self.speed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
+        self.KalmanSpeed_x.set_data(self.t_data, self.optimalColSpeed_data)
+        self.KalmanSpeed_y.set_data(self.t_data, self.optimalVerSpeed_data)
+        self.KalmanSpeed.set_data(self.t_data, self.optimalSpeed_data)
+
+        return self.route, self.angle, self.speed_x, self.speed_y, self.speed, self.KalmanSpeed_x, self.KalmanSpeed_y, self.KalmanSpeed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
     def animationInit(self):
         self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)

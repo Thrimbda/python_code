@@ -1,48 +1,50 @@
-from PyQt5.QtCore import *  
-from PyQt5.QtGui import *  
-from PyQt5.QtWidgets import *
-import time
-'''
-信号传参类型
-pyqtSignal()                                #无参数信号
-pyqtSignal(int)                             # 一个参数(整数)的信号 
-pyqtSignal([int],[str]                     # 一个参数(整数或者字符串)重载版本的信号
-pyqtSignal(int,str)                         #二个参数(整数,字符串)的信号 
-pyqtSignal([int,int],[int,str])           #二个参数([整数,整数]或者[整数,字符串])重载版本
-'''
-class Mythread(QThread):
-    #定义信号,定义参数为str类型 
-    _signal=pyqtSignal(str)   
-    def __init__(self):
-        super(Mythread,self).__init__() 
-    def run(self):  
-        for i in range(2000000):
-            #发出信号
-            self._signal.emit('当前循环值为:%s'%i) 
-            #让程序休眠
-            time.sleep(0.5)   
-if __name__ == '__main__':
-    app = QApplication([])
-    dlg = QDialog()
-    dlg.resize(400, 300)
-    dlg.setWindowTitle("自定义按钮测试")
-    dlgLayout = QVBoxLayout()
-    dlgLayout.setContentsMargins(40, 40, 40, 40)
-    btn=QPushButton('测试按钮')
-    dlgLayout.addWidget(btn)
-    dlgLayout.addStretch(40)
-    dlg.setLayout(dlgLayout)
-    dlg.show()
-     
-     
-    def chuli(s):
-        dlg.setWindowTitle(s)
-        btn.setText(s)
-    #创建线程
-    thread=Mythread()
-    #注册信号处理函数
-    thread._signal.connect(chuli)
-    #启动线程
-    thread.start()
-    dlg.exec_()
-    app.exit()
+# -*- coding: utf-8 -*-  
+  
+  
+from scipy import signal  
+import numpy as np  
+import matplotlib.pyplot as pl  
+import matplotlib  
+import math  
+  
+N = 500  
+fs = 5  
+n = [2*math.pi*fs*t/N for t in range(N)]  
+axis_x = np.linspace(0,1,num=N)  
+#设置字体文件，否则不能显示中文  
+myfont = matplotlib.font_manager.FontProperties(fname='c:\\windows\\fonts\\fzshjw_0.ttf')  
+  
+#频率为5Hz的正弦信号  
+x = [math.sin(i) for i in n]  
+pl.subplot(221)  
+pl.plot(axis_x,x)  
+pl.title(u'5Hz的正弦信号', fontproperties=myfont)  
+pl.axis('tight')  
+  
+xx = []  
+x1 = [math.sin(i*10) for i in n]  
+for i in range(len(x)):  
+    xx.append(x[i] + x1[i])  
+   
+pl.subplot(222)  
+pl.plot(axis_x,xx)  
+pl.title(u'5Hz与50Hz的正弦叠加信号', fontproperties=myfont)  
+pl.axis('tight')  
+  
+b,a = signal.butter(3,0.08,'low')  
+sf = signal.filtfilt(b,a,xx)  
+  
+pl.subplot(223)  
+pl.plot(axis_x,sf)  
+pl.title(u'低通滤波后', fontproperties=myfont)  
+pl.axis('tight')  
+  
+b,a = signal.butter(3,0.10,'high')  
+sf = signal.filtfilt(b,a,xx)  
+  
+pl.subplot(224)  
+pl.plot(axis_x,sf)  
+pl.title(u'高通滤波后', fontproperties=myfont)  
+pl.axis('tight')  
+
+pl.show()
