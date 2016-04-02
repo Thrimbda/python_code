@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-31 17:16:54
+# @Last Modified time: 2016-04-02 16:14:40
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -16,7 +16,7 @@ import matplotlib.gridspec as gridspec          #分块模块
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT          #图接口以及工具库
 # implement the default mpl key bindings
 import serial       #串口模块
-import os
+import os.path
 import platform
 import struct
 
@@ -58,8 +58,6 @@ class SerialCtl():      #serial Initialization
     def writeCmd(self, string):
         string = eval(string)
         string = struct.pack("H", string)
-        print(string)
-        print(type(string))
         self.ser.write(string)
 
 
@@ -93,13 +91,14 @@ class Graph():
         self.stdB_route, = self.ax1.plot([], [], 'b-', lw=2)
         self.stdR_route, = self.ax1.plot([], [], 'r-', lw=2)
         self.angle, = self.ax2.plot([], [], 'b-', lw=2)
-        self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
-        self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
-        self.speed, = self.ax5. plot([], [], 'b-', lw=2)
 
-        self.KalmanSpeed_x, = self.ax3.plot([], [], 'g-', lw=2)
-        self.KalmanSpeed_y, = self.ax4.plot([], [], 'g-', lw=2)
-        self.KalmanSpeed, = self.ax5.plot([], [], 'g-', lw=2)
+        # self.speed_x, = self.ax3.plot([], [], 'b-', lw=2)
+        # self.speed_y, = self.ax4.plot([], [], 'b-', lw=2)
+        # self.speed, = self.ax5. plot([], [], 'b-', lw=2)
+
+        self.lowPassSpeed_x, = self.ax3.plot([], [], 'g-', lw=2)
+        self.lowPassSpeed_y, = self.ax4.plot([], [], 'g-', lw=2)
+        self.lowPassSpeed, = self.ax5.plot([], [], 'g-', lw=2)
         # 设定路径图长宽
         self.ax1.set_xlim(xmin, xmax)
         self.ax1.set_ylim(ymin, ymax)
@@ -109,11 +108,6 @@ class Graph():
         self.optimalX_data, self.optimalY_data = [], []
         self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data = [], [], []
         self.timeNode = []
-        # 设定各图实时数据位置
-        # self.Angle_display = self.ax1.text(-13900, 13700, '')
-        # self.Speed_X_display = self.ax3.text(250, 950, '')
-        # self.Speed_Y_display = self.ax4.text(250, 950, '')
-        # self.Speed_display = self.ax5.text(250, 950, '')
         # 打开文件
         with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_RouteBlue.txt', 'r') as self.stdB_fobj:
             self.database = self.stdB_fobj.readlines()
@@ -198,19 +192,12 @@ class Graph():
 
         self.route.set_data([], [])
         self.angle.set_data([], [])
-        self.speed_x.set_data([], [])
-        self.speed_y.set_data([], [])
-        self.speed.set_data([], [])
 
-        self.KalmanSpeed_x.set_data([], [])
-        self.KalmanSpeed_y.set_data([], [])
-        self.KalmanSpeed.set_data([], [])
+        self.lowPassSpeed_x.set_data([], [])
+        self.lowPassSpeed_y.set_data([], [])
+        self.lowPassSpeed.set_data([], [])
 
-        # self.Angle_display.set_text('')
-        # self.Speed_X_display.set_text('')
-        # self.Speed_Y_display.set_text('')
-        # self.Speed_display.set_text('')
-        return self.stdR_route, self.stdB_route, self.route, self.angle, self.speed_x, self.speed_y, self.speed, self.KalmanSpeed_x, self.KalmanSpeed_y  #, self.Speed_X_display, self.Angle_display, self.Speed_Y_display, self.Speed_display
+        return self.stdR_route, self.stdB_route, self.route, self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y, self.lowPassSpeed
 
     def clear(self):
         self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data = [], [], [], [], [], []
@@ -233,11 +220,11 @@ class Graph():
                         raise Exception
                 except Exception:
                     self.type = 'bad_datatype'
-                    print(self.type)
+                    print(self.type, self.info)
                 else:
                     self.X, self.Y, self.A, self.t = self.info[0], self.info[1], self.info[2], self.info[-2]
                     self.encoder1, self.encoder2 = self.info[3], self.info[4]
-                    self.Speed_X, self.Speed_Y, self.Speed = self.speedCalculator(self.X_data, self.Y_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data)
+                    self.Speed_X, self.Speed_Y, self.Speed = self.speedCalculator(self.X_data, self.Y_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data)
                     # self.kalmanFilter()
                     # self.optimalColSpeed, self.optimalVerSpeed, self.optimalSpeed = self.speedCalculator(self.optimalX_data, self.optimalY_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalVerSpeed_data)
                     self.t_data.append(self.t)
@@ -264,10 +251,6 @@ class Graph():
                     # self.optimalVerSpeed_data.append(self.optimalVerSpeed)
                     # self.optimalSpeed_data.append(self.optimalSpeed)
 
-                    # self.Angle_display.set_text('Angle = %.2f' % (self.A))
-                    # self.Speed_X_display.set_text('Speed_X = %.2f' % self.Speed_X)
-                    # self.Speed_Y_display.set_text('Speed_Y = %.2f' % self.Speed_Y)
-                    # self.Speed_display.set_text('Speed = %.2f' % self.Speed)
                     yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
                     #一定要有这个生成器
 
@@ -287,15 +270,15 @@ class Graph():
 
         self.route.set_data(self.X_data, self.Y_data)
         self.angle.set_data(self.A_data, self.t_data)
-        self.speed_x.set_data(self.t_data, self.Speed_X_data)
-        self.speed_y.set_data(self.t_data, self.Speed_Y_data)
-        self.speed.set_data(self.t_data, self.Speed_data)
+        # self.speed_x.set_data(self.t_data, self.Speed_X_data)
+        # self.speed_y.set_data(self.t_data, self.Speed_Y_data)
+        # self.speed.set_data(self.t_data, self.Speed_data)
 
-        self.KalmanSpeed_x.set_data(self.t_data, self.optimalColSpeed_data)
-        self.KalmanSpeed_y.set_data(self.t_data, self.optimalVerSpeed_data)
-        self.KalmanSpeed.set_data(self.t_data, self.optimalSpeed_data)
+        self.lowPassSpeed_x.set_data(self.t_data, self.optimalColSpeed_data)
+        self.lowPassSpeed_y.set_data(self.t_data, self.optimalVerSpeed_data)
+        self.lowPassSpeed.set_data(self.t_data, self.optimalSpeed_data)
 
-        return self.route, self.angle, self.speed_x, self.speed_y, self.speed, self.KalmanSpeed_x, self.KalmanSpeed_y, self.KalmanSpeed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
+        return self.route, self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y, self.lowPassSpeed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
     def animationInit(self):
         self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)
@@ -311,7 +294,7 @@ class Graph():
 class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为基类）
     def __init__(self, parent=None):        #构造函数
         QtWidgets.QMainWindow.__init__(self)
-        # self.splash = QtWidgets.QSplashScreen(QtGui.QPixmap(os.path.split(os.path.realpath(__file__))[0] + "/map.png"))
+        # self.splash = QtWidgets.QSplashScreen(QtGui.QPixmap(os.path.split(os.path.realpath(__file__))[0] + "/map.png")) #loading image!!
         # self.splash.show()
         QtWidgets.QToolTip.setFont(QtGui.QFont('Myriad Set'))       #set text-font
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -359,11 +342,11 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.serialButton.resize(self.serialButton.sizeHint())
         self.serialButton.clicked[bool].connect(self.serialOperation)
 
-        self.plotButton = QtWidgets.QPushButton('Start', self)
-        self.plotButton.setCheckable(True)
-        self.plotButton.setToolTip('<b>click</b> to start/stop plot.')
-        self.plotButton.resize(self.plotButton.sizeHint())
-        self.plotButton.clicked[bool].connect(self.graphFunc)
+        # self.plotButton = QtWidgets.QPushButton('Start', self)
+        # self.plotButton.setCheckable(True)
+        # self.plotButton.setToolTip('<b>click</b> to start/stop plot.')
+        # self.plotButton.resize(self.plotButton.sizeHint())
+        # self.plotButton.clicked[bool].connect(self.graphFunc)
 
         self.menuButton = QtWidgets.QPushButton('Menu', self)
         self.menuButton.setToolTip('<b>click</b> to show/hide extension function.')
@@ -382,7 +365,7 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.clearButton.resize(self.clearButton.sizeHint())
 
         self.hBox1.addWidget(self.serialButton)
-        self.hBox1.addWidget(self.plotButton)
+        # self.hBox1.addWidget(self.plotButton)
         self.hBox1.addWidget(self.recordButton)
         self.hBox1.addWidget(self.clearButton)
         self.hBox2.addWidget(self.menuButton)
@@ -395,7 +378,6 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.plottingFlag = False
         self.plotedFlag = False
         self.savedFlag = False      #unnecessary, But for readabiliy added it.
-        self.serInitFlag = 0
         self.show()
         # self.splash.finish()
 
@@ -521,17 +503,24 @@ This is a program for cart adjusting. function completing.""")
         # try:
         if pressed:
             if self.graph.ser.serialInit(self.port):
-                self.serInitFlag = True
                 self.statusBar().showMessage('successful opened serial port.')
                 self.serialButton.setText('Close')
+
+                self.plottingFlag = True
+                self.plotedFlag = True
+                self.graph.animationInit()
+                self.statusBar().showMessage('plotting.')
             else:
                 self.warning('serial open error, please check if the model plugged in.')
                 self.serialButton.setChecked(False)
                 # self.serialButton.setText('Open')
         else:
             self.graph.ser.serialClose()
-            self.serInitFlag = False
             self.serialButton.setText('Open')
+
+            self.plottingFlag = False
+            self.graph.animationStop()
+            self.statusBar().showMessage('stoped')
         # except Exception:
             # self.warning('serial open error, please check if the model plugged in.')
 
@@ -679,7 +668,7 @@ if __name__ == '__main__':
 #----------------------2016.2.1----------------------#
 
 #----------------------journal-----------------------#
-# updates:                                           #
+# update:                                           #
 #   1. Embedded the plot into Qt5(used to be Tkinter)#
 #   2. Woring on complete the function               #
 #   3. Thread block problem still unhandled          #
@@ -687,7 +676,7 @@ if __name__ == '__main__':
 #---------------------2016.2.17----------------------#
 
 #----------------------journal-----------------------#
-# updates:                                           #
+# update:                                           #
 #   1. After added timeout=0 arg into serial init th-#
 #      e thread block problem finnal solved. but the #
 #      program would still stuck after plotting began#
@@ -699,7 +688,7 @@ if __name__ == '__main__':
 #---------------------2016.2.18----------------------#
 
 #-----------------------journal----------------------#
-# updates:                                           #
+# update:                                           #
 #   1. Solved many problems which was mentioned above#
 #                                                    #
 # problem:                                           #
@@ -717,3 +706,23 @@ if __name__ == '__main__':
 #      (4) more to think and discuss.                #
 #                                                    #
 #---------------------2016.3.15----------------------#
+
+#-----------------------journal----------------------#
+# update:
+#   1. Since I know that uart can do I/O the same t- #
+#      me(almost), developed the control function.   #
+#   2. Now using Lowpass filtering to ajust speed fi-#
+#      gure and had a great effect.                  #
+#                                                    #
+# problem:                                           #
+#   1. But goRoute function can't work well since ma-#
+#      in control program changed, now click goRoute #
+#      button with what click EnmergencyStop button  #
+#      to dirve the cart. Need to fix this.          #
+#                                                    #
+# blueprint:                                         #
+#   1. To make this software more useful. use it at  #
+#      an analyse tool to have a speed-up of our dear#
+#      cart.                                         #
+#                                                    #
+#---------------------2016.4.2-----------------------#
