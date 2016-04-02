@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-02 16:14:40
+# @Last Modified time: 2016-04-02 17:22:48
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -135,7 +135,7 @@ class Graph():
         self.fig.tight_layout()
 
         # Filter params
-        self.signalGain, self.bandwidth = signal.butter(1, 0.08, 'low')
+        self.signalGain, self.bandwidth = signal.butter(1, 0.30, 'low')
 
         self.optimalX = 0
         self.optimalY = 0
@@ -200,7 +200,8 @@ class Graph():
         return self.stdR_route, self.stdB_route, self.route, self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y, self.lowPassSpeed
 
     def clear(self):
-        self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data = [], [], [], [], [], []
+        self.t_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data = [], [], [], [], [], [], [], [], [], []
+        self.init()
 
     def generator(self):      # 数据迭代器
         while True:
@@ -259,14 +260,24 @@ class Graph():
         # self.database = self.fobj.readlines()
         self.min, self.max = self.ax3.get_xlim()
         if self.t >= self.max:
-            self.ax2.set_ylim(self.min + 10, self.max + 10)
-            self.ax3.set_xlim(self.min + 10, self.max + 10)
-            self.ax4.set_xlim(self.min + 10, self.max + 10)
-            self.ax5.set_xlim(self.min + 10, self.max + 10)
-            self.ax2.figure.canvas.draw()
-            self.ax3.figure.canvas.draw()
-            self.ax4.figure.canvas.draw()
-            self.ax5.figure.canvas.draw()
+            if self.t - self.max < 10:
+                self.ax2.set_ylim(self.min + 10, self.max + 10)
+                self.ax3.set_xlim(self.min + 10, self.max + 10)
+                self.ax4.set_xlim(self.min + 10, self.max + 10)
+                self.ax5.set_xlim(self.min + 10, self.max + 10)
+                self.ax2.figure.canvas.draw()
+                self.ax3.figure.canvas.draw()
+                self.ax4.figure.canvas.draw()
+                self.ax5.figure.canvas.draw()
+            else:
+                self.ax2.set_ylim(self.t//10*10, self.t//10*10 + 50)
+                self.ax3.set_xlim(self.t//10*10, self.t//10*10 + 50)
+                self.ax4.set_xlim(self.t//10*10, self.t//10*10 + 50)
+                self.ax5.set_xlim(self.t//10*10, self.t//10*10 + 50)
+                self.ax2.figure.canvas.draw()
+                self.ax3.figure.canvas.draw()
+                self.ax4.figure.canvas.draw()
+                self.ax5.figure.canvas.draw()
 
         self.route.set_data(self.X_data, self.Y_data)
         self.angle.set_data(self.A_data, self.t_data)
@@ -515,12 +526,12 @@ This is a program for cart adjusting. function completing.""")
                 self.serialButton.setChecked(False)
                 # self.serialButton.setText('Open')
         else:
-            self.graph.ser.serialClose()
-            self.serialButton.setText('Open')
-
             self.plottingFlag = False
             self.graph.animationStop()
             self.statusBar().showMessage('stoped')
+
+            self.graph.ser.serialClose()
+            self.serialButton.setText('Open')
         # except Exception:
             # self.warning('serial open error, please check if the model plugged in.')
 
@@ -543,10 +554,8 @@ This is a program for cart adjusting. function completing.""")
 
     def graphClear(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
-            if self.plottingFlag:
-                self.graphStop()
             if self.saveEnsure('Do you wish to save data before clear Figure?'):
-                self.graph.fig.clf()
+                self.graph.clear()
                 self.plottingFlag = False
                 self.plotedFlag = False
                 self.savedFlag = False
@@ -554,8 +563,8 @@ This is a program for cart adjusting. function completing.""")
                 pass
         else:
             if self.actionEnsure('Are you sure wish to clear Figure?'):
-                del self.graph
-                self.graph = Graph(width=20, height=10, dpi=80)
+                self.graph.clear()
+
                 self.plotedFlag = False
                 self.savedFlag = False
             else:
@@ -713,6 +722,10 @@ if __name__ == '__main__':
 #      me(almost), developed the control function.   #
 #   2. Now using Lowpass filtering to ajust speed fi-#
 #      gure and had a great effect.                  #
+#   3. Rewrite clear function, now it's good to use  #
+#   4. Rewrite axis limits auto-reset function, now  #
+#      it will not take a long time to reset bit by  #
+#      bit.                                          #
 #                                                    #
 # problem:                                           #
 #   1. But goRoute function can't work well since ma-#
