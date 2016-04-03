@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.4
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-02 17:22:48
+# @Last Modified time: 2016-04-03 10:35:04
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -13,7 +13,8 @@ from scipy import signal
 import matplotlib.pyplot as plt         #绘图模块
 import matplotlib.animation as animation        #动画模块
 import matplotlib.gridspec as gridspec          #分块模块
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT          #图接口以及工具库
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT          #图接口以及工具库
 # implement the default mpl key bindings
 import serial       #串口模块
 import os.path
@@ -62,7 +63,8 @@ class SerialCtl():      #serial Initialization
 
 
 class Graph():
-    def __init__(self, width=20, height=10, dpi=80, xmin=-14000, xmax=0, ymin=0, ymax=14000):
+    def __init__(self, width=20, height=10, dpi=80, xmin=-14000,
+                 xmax=0, ymin=0, ymax=14000):
         self.ser = SerialCtl()
         self.serRead = b''
         self.t = 0
@@ -103,17 +105,26 @@ class Graph():
         self.ax1.set_xlim(xmin, xmax)
         self.ax1.set_ylim(ymin, ymax)
         # 对各图数据初始化
-        self.stdB_X_data, self.stdB_Y_data, self.stdR_X_data, self.stdR_Y_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.t_data = [], [], [], [], [], [], [], [], [], [], []
-        self.encoder1_data, self.encoder2_data = [], []
-        self.optimalX_data, self.optimalY_data = [], []
-        self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data = [], [], []
+        (self.optimalX_data, self.optimalY_data, self.encoder1_data,
+         self.encoder2_data, self.stdB_X_data, self.stdB_Y_data,
+         self.stdR_X_data, self.stdR_Y_data, self.X_data,
+         self.Y_data, self.A_data, self.Speed_X_data,
+         self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data,
+         self.Speed_Y_data, self.Speed_data, self.t_data) = ([], [], [],
+                                                             [], [], [],
+                                                             [], [], [],
+                                                             [], [], [],
+                                                             [], [], [],
+                                                             [], [], [])
         self.timeNode = []
         # 打开文件
-        with open(os.path.split(os.path.realpath(__file__))[0]+'/Fmt_RouteBlue.txt', 'r') as self.stdB_fobj:
+        with open(os.path.split(os.path.realpath(__file__))[0] +
+                  '/Fmt_RouteBlue.txt', 'r') as self.stdB_fobj:
             self.database = self.stdB_fobj.readlines()
         for item in self.database:
             self.info = tuple(eval(item))
-            self.stdB_X, self.stdB_Y, self.stdB_A, self.stdB_Speed_X, self.stdB_Speed_Y, self.stdB_Speed = self.info
+            (self.stdB_X, self.stdB_Y, self.stdB_A,
+             self.stdB_Speed_X, self.stdB_Speed_Y, self.stdB_Speed) = self.info
             self.stdB_X_data.append(self.stdB_X)
             self.stdB_Y_data.append(-self.stdB_Y)
         self.stdB_route.set_data(self.stdB_X_data, self.stdB_Y_data)
@@ -143,7 +154,8 @@ class Graph():
         self.paramP = np.cov(np.random.randn(1, len(self.stdR_X_data)))
         self.paramQ = np.cov(np.random.randn(1, len(self.stdR_X_data)))
 
-    def speedCalculator(self, col_data, ver_data, colSpeed_data, verSpeed_data, speed_data):
+    def speedCalculator(self, col_data, ver_data,
+                        colSpeed_data, verSpeed_data, speed_data):
         if len(self.t_data) < 3:
             colSpeed = verSpeed = speed = 0
             return colSpeed, verSpeed, speed
@@ -153,8 +165,10 @@ class Graph():
             speed = speed_data[-1]
             return colSpeed, verSpeed, speed
         else:
-            colSpeed = (col_data[-1] - col_data[-2]) / (self.t_data[-1] - self.t_data[-2])
-            verSpeed = (ver_data[-1] - ver_data[-2]) / (self.t_data[-1] - self.t_data[-2])
+            colSpeed = ((col_data[-1] - col_data[-2]) /
+                        (self.t_data[-1] - self.t_data[-2]))
+            verSpeed = ((ver_data[-1] - ver_data[-2]) /
+                        (self.t_data[-1] - self.t_data[-2]))
             speed = np.sqrt(colSpeed ** 2 + verSpeed ** 2)
             return colSpeed, verSpeed, speed
 
@@ -174,18 +188,22 @@ class Graph():
 
     def timeCount(self):
         if len(self.timeNode) != 0:
-            timeRecord = ""
+            timeRecord = []
             for i in range(len(self.timeNode)):
                 if i == 0:
-                    timeRecord += ("大车路径点记录：\n第%.1f秒大车启动\n" % (self.timeNode[i]))
+                    timeRecord.append("大车路径点记录：\n第%.1f秒大车启动\n" % (self.timeNode[i]))
                 else:
-                    timeRecord += ("第%d段路径用时%.1f秒\n" % (i, self.timeNode[i]-self.timeNode[i-1]))
+                    timeRecord.append("第%d段路径用时%.1f秒\n" % (i, self.timeNode[i]-self.timeNode[i-1]))
             if len(self.timeNode) == 19:
-                timeRecord += ("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" % (self.timeNode[17]-self.timeNode[0], self.timeNode[18]-self.timeNode[17], self.timeNode[18]-self.timeNode[0]))
+                timeRecord.append("路径用时%.1f秒，寻杆用时%.1f秒\n总计用时%.1f秒" %
+                                  (self.timeNode[17]-self.timeNode[0],
+                                   self.timeNode[18]-self.timeNode[17],
+                                   self.timeNode[18]-self.timeNode[0]))
             else:
-                timeRecord += ("总计用时%.1f秒" % (self.timeNode[-1]-self.timeNode[0]))
+                timeRecord.append("总计用时%.1f秒" % (self.timeNode[-1]-self.timeNode[0]))
         else:
-            timeRecord = "no data in the record"
+            timeRecord = ["no data in the record"]
+        timeRecord = ''.join(timeRecord)
         return timeRecord
 
     def init(self):         # 动画初始化
@@ -197,17 +215,27 @@ class Graph():
         self.lowPassSpeed_y.set_data([], [])
         self.lowPassSpeed.set_data([], [])
 
-        return self.stdR_route, self.stdB_route, self.route, self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y, self.lowPassSpeed
+        return (self.stdR_route, self.stdB_route, self.route,
+                self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y,
+                self.lowPassSpeed)
 
     def clear(self):
-        self.t_data, self.X_data, self.Y_data, self.A_data, self.Speed_X_data, self.Speed_Y_data, self.Speed_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data = [], [], [], [], [], [], [], [], [], []
+        (self.t_data, self.X_data, self.Y_data,
+         self.A_data, self.Speed_X_data, self.Speed_Y_data,
+         self.Speed_data, self.optimalColSpeed_data, self.optimalVerSpeed_data,
+         self.optimalSpeed_data) = ([], [], [],
+                                    [], [], [],
+                                    [], [], [],
+                                    [])
         self.init()
 
     def generator(self):      # 数据迭代器
         while True:
             self.serRead = self.ser.readline()
             if self.serRead == b'':
-                self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed = None, None, None, None, None, None
+                (self.X, self.Y, self.A,
+                 self.Speed_X, self.Speed_Y, self.Speed) = (None, None, None,
+                                                            None, None, None)
                 yield self.X, self.Y, self.A, self.Speed_X, self.Speed_Y, self.Speed
                 # this yield is very importent. without it the program will get into a endless loop here.
             else:
@@ -225,7 +253,13 @@ class Graph():
                 else:
                     self.X, self.Y, self.A, self.t = self.info[0], self.info[1], self.info[2], self.info[-2]
                     self.encoder1, self.encoder2 = self.info[3], self.info[4]
-                    self.Speed_X, self.Speed_Y, self.Speed = self.speedCalculator(self.X_data, self.Y_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data)
+                    (self.Speed_X,
+                     self.Speed_Y,
+                     self.Speed) = self.speedCalculator(self.X_data,
+                                                        self.Y_data,
+                                                        self.optimalColSpeed_data,
+                                                        self.optimalVerSpeed_data,
+                                                        self.optimalSpeed_data)
                     # self.kalmanFilter()
                     # self.optimalColSpeed, self.optimalVerSpeed, self.optimalSpeed = self.speedCalculator(self.optimalX_data, self.optimalY_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalVerSpeed_data)
                     self.t_data.append(self.t)
@@ -245,9 +279,15 @@ class Graph():
                         self.optimalVerSpeed_data = self.Speed_Y_data
                         self.optimalSpeed_data = self.Speed_data
                     else:
-                        self.optimalColSpeed_data = signal.filtfilt(self.signalGain, self.bandwidth, self.Speed_X_data)
-                        self.optimalVerSpeed_data = signal.filtfilt(self.signalGain, self.bandwidth, self.Speed_Y_data)
-                        self.optimalSpeed_data = signal.filtfilt(self.signalGain, self.bandwidth, self.Speed_data)
+                        self.optimalColSpeed_data = signal.filtfilt(self.signalGain,
+                                                                    self.bandwidth,
+                                                                    self.Speed_X_data)
+                        self.optimalVerSpeed_data = signal.filtfilt(self.signalGain,
+                                                                    self.bandwidth,
+                                                                    self.Speed_Y_data)
+                        self.optimalSpeed_data = signal.filtfilt(self.signalGain,
+                                                                 self.bandwidth,
+                                                                 self.Speed_data)
                     # self.optimalColSpeed_data.append(self.optimalColSpeed)
                     # self.optimalVerSpeed_data.append(self.optimalVerSpeed)
                     # self.optimalSpeed_data.append(self.optimalSpeed)
@@ -292,7 +332,9 @@ class Graph():
         return self.route, self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y, self.lowPassSpeed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
     def animationInit(self):
-        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator, init_func=self.init, blit=False, interval=0, repeat=False)
+        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator,
+                                            init_func=self.init, blit=False, interval=0,
+                                            repeat=False)
         self.draw._start()      #somehow in PyQt5 method _start() dosen't execute automaticly, so I have to start it manuly.
 
         #the class is class matplotlib.animation.FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, **kwargs)
@@ -499,7 +541,11 @@ This is a program for cart adjusting. function completing.""")
             fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save encoder File')
             try:
                 with open(fname[0], 'w') as self.fobj:
-                    self.encoderData = list(zip(self.graph.X_data, self.graph.Y_data, self.graph.A_data, self.graph.encoder1_data, self.graph.encoder2_data))
+                    self.encoderData = list(zip(self.graph.X_data,
+                                                self.graph.Y_data,
+                                                self.graph.A_data,
+                                                self.graph.encoder1_data,
+                                                self.graph.encoder2_data))
                     for item in self.encoderData:
                         self.fobj.write(str(item) + '\n')
                     self.information('successful saved.')
