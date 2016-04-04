@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-03 10:35:04
+# @Last Modified time: 2016-04-03 20:58:00
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -41,7 +41,7 @@ class SerialCtl():      #serial Initialization
         self.ser.close()
 
     def getAvailablePort(self):
-        for i in range(10):
+        for i in np.arange(99):
             try:
                 if pf == 'Windows':
                     s = serial.Serial('COM' + str(i))
