@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-03 20:58:00
+# @Last Modified time: 2016-04-04 22:38:01
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -223,10 +223,18 @@ class Graph():
         (self.t_data, self.X_data, self.Y_data,
          self.A_data, self.Speed_X_data, self.Speed_Y_data,
          self.Speed_data, self.optimalColSpeed_data, self.optimalVerSpeed_data,
-         self.optimalSpeed_data) = ([], [], [],
-                                    [], [], [],
-                                    [], [], [],
-                                    [])
+         self.optimalSpeed_data, self.timeNode) = ([], [], [],
+                                                   [], [], [],
+                                                   [], [], [],
+                                                   [], [])
+        self.ax2.set_ylim(0, 50)
+        self.ax3.set_xlim(0, 50)
+        self.ax4.set_xlim(0, 50)
+        self.ax5.set_xlim(0, 50)
+        self.ax2.figure.canvas.draw()
+        self.ax3.figure.canvas.draw()
+        self.ax4.figure.canvas.draw()
+        self.ax5.figure.canvas.draw()
         self.init()
 
     def generator(self):      # 数据迭代器
@@ -602,6 +610,7 @@ This is a program for cart adjusting. function completing.""")
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
             if self.saveEnsure('Do you wish to save data before clear Figure?'):
                 self.graph.clear()
+                self.encoderData = []
                 self.plottingFlag = False
                 self.plotedFlag = False
                 self.savedFlag = False
@@ -610,6 +619,7 @@ This is a program for cart adjusting. function completing.""")
         else:
             if self.actionEnsure('Are you sure wish to clear Figure?'):
                 self.graph.clear()
+                self.encoderData = []
 
                 self.plotedFlag = False
                 self.savedFlag = False
@@ -723,7 +733,7 @@ if __name__ == '__main__':
 #----------------------2016.2.1----------------------#
 
 #----------------------journal-----------------------#
-# update:                                           #
+# update:                                            #
 #   1. Embedded the plot into Qt5(used to be Tkinter)#
 #   2. Woring on complete the function               #
 #   3. Thread block problem still unhandled          #
@@ -731,7 +741,7 @@ if __name__ == '__main__':
 #---------------------2016.2.17----------------------#
 
 #----------------------journal-----------------------#
-# update:                                           #
+# update:                                            #
 #   1. After added timeout=0 arg into serial init th-#
 #      e thread block problem finnal solved. but the #
 #      program would still stuck after plotting began#
@@ -743,7 +753,7 @@ if __name__ == '__main__':
 #---------------------2016.2.18----------------------#
 
 #-----------------------journal----------------------#
-# update:                                           #
+# update:                                            #
 #   1. Solved many problems which was mentioned above#
 #                                                    #
 # problem:                                           #
