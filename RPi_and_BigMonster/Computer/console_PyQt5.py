@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-05 17:28:44
+# @Last Modified time: 2016-04-05 20:55:05
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -146,7 +146,7 @@ class Graph():
         self.fig.tight_layout()
 
         # Filter params
-        self.signalGain, self.bandwidth = signal.butter(10, 0.30, 'low')
+        self.signalGain, self.bandwidth = signal.butter(5, 0.30, 'low')
         print(self.signalGain, self.bandwidth)
 
         self.optimalX = 0
