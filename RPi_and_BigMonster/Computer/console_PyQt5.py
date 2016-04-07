@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-05 20:55:05
+# @Last Modified time: 2016-04-07 17:37:42
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -20,6 +20,8 @@ import serial       #串口模块
 import os.path
 import platform
 import struct
+import threading
+import time
 
 pf = platform.system()      #识别当前工作环境
 
@@ -54,7 +56,10 @@ class SerialCtl():      #serial Initialization
                 pass
 
     def readline(self):
-        return self.ser.readline()
+        try:
+            return self.ser.readline()
+        except serial.SerialException:
+            raise serial.SerialException
 
     def writeCmd(self, string):
         string = eval(string)
@@ -240,7 +245,10 @@ class Graph():
 
     def generator(self):      # 数据迭代器
         while True:
-            self.serRead = self.ser.readline()
+            try:
+                self.serRead = self.ser.readline()
+            except serial.SerialException:
+                raise serial.SerialException
             if self.serRead == b'':
                 (self.X, self.Y, self.A,
                  self.Speed_X, self.Speed_Y, self.Speed) = (None, None, None,
@@ -283,7 +291,7 @@ class Graph():
 
                     # self.optimalX_data.append(self.optimalX)
                     # self.optimalY_data.append(self.optimalY)
-                    if (len(self.t_data)) < 7:
+                    if (len(self.t_data)) < 19:
                         self.optimalColSpeed_data = self.Speed_X_data
                         self.optimalVerSpeed_data = self.Speed_Y_data
                         self.optimalSpeed_data = self.Speed_data
@@ -341,9 +349,12 @@ class Graph():
         return self.route, self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y, self.lowPassSpeed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
 
     def animationInit(self):
-        self.draw = animation.FuncAnimation(self.fig, self.func, self.generator,
-                                            init_func=self.init, blit=False, interval=0,
-                                            repeat=False)
+        try:
+            self.draw = animation.FuncAnimation(self.fig, self.func, self.generator,
+                                                init_func=self.init, blit=False, interval=0,
+                                                repeat=False)
+        except serial.SerialException:
+            raise serial.SerialException
         self.draw._start()      #somehow in PyQt5 method _start() dosen't execute automaticly, so I have to start it manuly.
 
         #the class is class matplotlib.animation.FuncAnimation(fig, func, frames=None, init_func=None, fargs=None, save_count=None, **kwargs)
@@ -396,7 +407,6 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.vBox.addWidget(self.toolbar)
         self.combo = QtWidgets.QComboBox(self)
         self.hBox1.addWidget(self.combo)
-        self.checkModel()
 
         self.serialButton = QtWidgets.QPushButton('Open', self)
         self.serialButton.setCheckable(True)
@@ -440,14 +450,22 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.plottingFlag = False
         self.plotedFlag = False
         self.savedFlag = False      #unnecessary, But for readabiliy added it.
+
         self.show()
+
+        self.t = threading.Thread(target=self.checkModel())
+        self.t.setDaemon(True)
+        self.t.start()
         # self.splash.finish()
 
     def checkModel(self):
-        self.graph.ser.getAvailablePort()
-        for i in self.graph.ser.available_port:
-            self.combo.addItem(i)
-        self.port = str(self.combo.currentText())
+        count = 0
+        while count == 0:
+            self.graph.ser.getAvailablePort()
+            for i in self.graph.ser.available_port:
+                self.combo.addItem(i)
+            self.port = str(self.combo.currentText())
+            count = self.combo.count()
 
     def fileQuit(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
@@ -518,7 +536,10 @@ This is a program for cart adjusting. function completing.""")
 
     def saveroute(self):
         if len(self.graph.timeNode) != 0:
-            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save timeNode File')
+            fname = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                          'Save timeNode File',
+                                                          "Text Files (*.txt)",
+                                                          'timeNode%s' % time.ctime())
             try:
                 with open(fname[0], 'w') as self.fobj:
                     self.fobj.write(self.graph.timeCount())
@@ -547,7 +568,11 @@ This is a program for cart adjusting. function completing.""")
 
     def saveEncoder(self):
         if len(self.graph.encoder1_data) != 0:
-            fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Save encoder File')
+            fname = QtWidgets.QFileDialog.getSaveFileName(self,
+                                                          'Save encoder File',
+                                                          os.path.split(os.path.realpath(__file__))[0],
+                                                          "Text Files (*.txt)",
+                                                          'Fmt_encoder%s' % time.ctime())
             try:
                 with open(fname[0], 'w') as self.fobj:
                     self.encoderData = list(zip(self.graph.X_data,
