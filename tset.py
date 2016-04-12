@@ -1,13 +1,19 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import mec_acc
 
-x = np.linspace(-20, 20, 3000, endpoint=True)
-k = np.arange(-100, 100)
-y = []
+filename = '/home/michael/Documents/temp/data.txt'
 
-for i in k:
-    y.append(x ** k)
+data = []
+with open(filename, 'r') as fileobj:
+    data = fileobj.readlines()
 
-for i in np.arange(200):
-    plt.plot(x, y[i], color="blue", linewidth=2, linestyle='-')
-plt.show()
+for x in np.arange(len(data)):
+    data[x] = eval(data[x])
+
+x_speed = data[0:131]
+y_spped = data[131:263]
+r_speed = data[263:]
+
+print(x_speed, y_spped, r_speed)
+for i in np.arange(131):
+    print(mec_acc.set_speed(x_speed[i], y_spped[i], r_speed[i]), (i+1)*0.1)

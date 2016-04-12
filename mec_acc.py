@@ -43,7 +43,6 @@ def set_speed(speed_x,  speed_y,  speed_rot):
     real_speed[0] = (coeff_arg[0][0] * real_set_fl_w + coeff_arg[1][0] * real_set_fr_w + coeff_arg[2][0] * real_set_bl_w + coeff_arg[3][0] * real_set_br_w) * wheel / 4
     real_speed[1] = (coeff_arg[0][1] * real_set_fl_w + coeff_arg[1][1] * real_set_fr_w + coeff_arg[2][1] * real_set_bl_w + coeff_arg[3][1] * real_set_br_w) * wheel / 4
     real_speed[2] = (coeff_arg[0][2] * real_set_fl_w + coeff_arg[1][2] * real_set_fr_w + coeff_arg[2][2] * real_set_bl_w + coeff_arg[3][2] * real_set_br_w) * wheel / (4 * (robot_L + robot_W)/2)/factor_k
-    print(real_speed[0], real_speed[1], real_speed[2])
     return (real_set_fl_w, real_set_fr_w, real_set_bl_w, real_set_br_w)
 
 if __name__ == '__main__':

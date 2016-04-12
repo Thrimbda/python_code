@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-07 17:37:42
+# @Last Modified time: 2016-04-12 17:25:31
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -138,7 +138,6 @@ class Graph():
             self.stdR_X_data.append(-self.stdB_X_data[item]-14000)
             self.stdR_Y_data.append(self.stdB_Y_data[item])
         self.stdR_route.set_data(self.stdR_X_data, self.stdR_Y_data)
-        # self.fobj = open(os.path.split(os.path.realpath(__file__))[0]+'/route4.txt', 'r')     #this function will get the dir where the script is
 
         self.ax2.set_ylim(0, 50)
         self.ax3.set_xlim(0, 50)
@@ -153,12 +152,6 @@ class Graph():
         # Filter params
         self.signalGain, self.bandwidth = signal.butter(5, 0.30, 'low')
         print(self.signalGain, self.bandwidth)
-
-        self.optimalX = 0
-        self.optimalY = 0
-        self.covariance = 10
-        self.paramP = np.cov(np.random.randn(1, len(self.stdR_X_data)))
-        self.paramQ = np.cov(np.random.randn(1, len(self.stdR_X_data)))
 
     def speedCalculator(self, col_data, ver_data,
                         colSpeed_data, verSpeed_data, speed_data):
@@ -177,20 +170,6 @@ class Graph():
                         (self.t_data[-1] - self.t_data[-2]))
             speed = np.sqrt(colSpeed ** 2 + verSpeed ** 2)
             return colSpeed, verSpeed, speed
-
-    def kalmanFilter(self):
-        if len(self.X_data) < 2:
-            self.predictX = self.optimalX
-            self.predictY = self.optimalY
-        else:
-            self.predictX = self.optimalX + self.stdB_X_data[len(self.X_data) - 1] - self.stdB_X_data[len(self.X_data) - 2]
-            self.predictY = self.optimalY + self.stdB_Y_data[len(self.Y_data) - 1] - self.stdB_Y_data[len(self.Y_data) - 2]
-            self.covariance += self.paramQ
-            Kg = self.covariance/(self.covariance + self.paramQ)
-            self.optimalX = self.predictX + Kg * (self.X_data[-1] - self.predictX)
-            self.optimalY = self.predictY + Kg * (self.Y_data[-1] - self.predictY)
-            self.covariance = (1 - Kg)/self.covariance
-        #协方差怎么算
 
     def timeCount(self):
         if len(self.timeNode) != 0:
@@ -452,20 +431,17 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.savedFlag = False      #unnecessary, But for readabiliy added it.
 
         self.show()
-
-        self.t = threading.Thread(target=self.checkModel())
-        self.t.setDaemon(True)
-        self.t.start()
+        self.checkModel()
+        # self.t = threading.Thread(target=self.checkModel())
+        # self.t.setDaemon(True)
+        # self.t.start()
         # self.splash.finish()
 
     def checkModel(self):
-        count = 0
-        while count == 0:
-            self.graph.ser.getAvailablePort()
-            for i in self.graph.ser.available_port:
-                self.combo.addItem(i)
-            self.port = str(self.combo.currentText())
-            count = self.combo.count()
+        self.graph.ser.getAvailablePort()
+        for i in self.graph.ser.available_port:
+            self.combo.addItem(i)
+        self.port = str(self.combo.currentText())
 
     def fileQuit(self):
         if (not self.savedFlag and self.plotedFlag) or self.plottingFlag:
