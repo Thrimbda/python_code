@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-12 17:25:31
+# @Last Modified time: 2016-04-12 19:14:22
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -514,8 +514,8 @@ This is a program for cart adjusting. function completing.""")
         if len(self.graph.timeNode) != 0:
             fname = QtWidgets.QFileDialog.getSaveFileName(self,
                                                           'Save timeNode File',
-                                                          "Text Files (*.txt)",
-                                                          'timeNode%s' % time.ctime())
+                                                          'timeNode%s.txt' % time.ctime(),
+                                                          "Text Files (*.txt)")
             try:
                 with open(fname[0], 'w') as self.fobj:
                     self.fobj.write(self.graph.timeCount())

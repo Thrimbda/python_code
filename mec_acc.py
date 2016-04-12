@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 
 def set_speed(speed_x,  speed_y,  speed_rot):
@@ -44,6 +45,16 @@ def set_speed(speed_x,  speed_y,  speed_rot):
     real_speed[1] = (coeff_arg[0][1] * real_set_fl_w + coeff_arg[1][1] * real_set_fr_w + coeff_arg[2][1] * real_set_bl_w + coeff_arg[3][1] * real_set_br_w) * wheel / 4
     real_speed[2] = (coeff_arg[0][2] * real_set_fl_w + coeff_arg[1][2] * real_set_fr_w + coeff_arg[2][2] * real_set_bl_w + coeff_arg[3][2] * real_set_br_w) * wheel / (4 * (robot_L + robot_W)/2)/factor_k
     return (real_set_fl_w, real_set_fr_w, real_set_bl_w, real_set_br_w)
+
+
+def speedCalculator(col_data, ver_data, radian_data, colSpeed_data, verSpeed_data, rotSpeed_data):
+    for i in np.arange(len(col_data)-1):
+        colSpeed = ((col_data[i] - col_data[i+1]) / 0.1)
+        verSpeed = ((ver_data[i] - ver_data[i+1]) / 0.1)
+        rotSpeed = ((radian_data[i] - radian_data[i+1]) / 0.1)
+        colSpeed_data.append(colSpeed)
+        verSpeed_data.append(verSpeed)
+        rotSpeed_data.append(rotSpeed)
 
 if __name__ == '__main__':
     realSpeed = set_speed(5000, 5000, 1000)
