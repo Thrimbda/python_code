@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-12 19:14:22
+# @Last Modified time: 2016-04-12 21:22:29
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -16,6 +16,7 @@ import matplotlib.gridspec as gridspec          #分块模块
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT          #图接口以及工具库
 # implement the default mpl key bindings
+import mec_acc
 import serial       #串口模块
 import os.path
 import platform
@@ -68,21 +69,25 @@ class SerialCtl():      #serial Initialization
 
 
 class Graph():
-    def __init__(self, width=20, height=10, dpi=80, xmin=-14000,
+    def __init__(self, width=30, height=10, dpi=80, xmin=-14000,
                  xmax=0, ymin=0, ymax=14000):
         self.ser = SerialCtl()
         self.serRead = b''
         self.t = 0
         # 对整个图进行分区2列x4行
-        self.subs = gridspec.GridSpec(2, 4)
+        self.subs = gridspec.GridSpec(2, 6)
         self.fig = plt.Figure(  #facecolor = "black",
                           figsize=(width, height), dpi=dpi)        #设定图大小20英寸x10英寸
         # 对图进行分割
-        self.ax1 = self.fig.add_subplot(self.subs[0:, 1:-1])
+        self.ax1 = self.fig.add_subplot(self.subs[:, 2:4])
         self.ax2 = self.fig.add_subplot(self.subs[0, 0], projection='polar')
         self.ax3 = self.fig.add_subplot(self.subs[1, 0])
-        self.ax4 = self.fig.add_subplot(self.subs[0, -1])
-        self.ax5 = self.fig.add_subplot(self.subs[1, -1])
+        self.ax4 = self.fig.add_subplot(self.subs[0, 1])
+        self.ax5 = self.fig.add_subplot(self.subs[1, 1])
+        self.axFl = self.fig.add_subplot(self.subs[0, 4])
+        self.axFr = self.fig.add_subplot(self.subs[1, 4])
+        self.axBl = self.fig.add_subplot(self.subs[0, 5])
+        self.axBr = self.fig.add_subplot(self.subs[1, 5])
         # import image
         # self.imagefile = cbook.get_sample_data(os.path.split(os.path.realpath(__file__))[0]+'/map.png')
         # self.image = plt.imread(self.imagefile)
@@ -93,6 +98,10 @@ class Graph():
         self.ax3.set_title("speed:X")
         self.ax4.set_title("speed:Y")
         self.ax5.set_title("speed:total")
+        self.axFl.set_title("Fl-rotation")
+        self.axFr.set_title("Fr-rotation")
+        self.axBl.set_title("Bl-rotation")
+        self.axBr.set_title("Br-rotation")
         # 初始化并设定各子图样式
         self.route, = self.ax1.plot([], [], 'g-', lw=2)     #lw is linewidth
         self.stdB_route, = self.ax1.plot([], [], 'b-', lw=2)
@@ -106,6 +115,12 @@ class Graph():
         self.lowPassSpeed_x, = self.ax3.plot([], [], 'g-', lw=2)
         self.lowPassSpeed_y, = self.ax4.plot([], [], 'g-', lw=2)
         self.lowPassSpeed, = self.ax5.plot([], [], 'g-', lw=2)
+
+        self.fl = self.axFl.plot([], [], 'g-', lw=2)
+        self.fr = self.axFr.plot([], [], 'g-', lw=2)
+        self.bl = self.axBl.plot([], [], 'g-', lw=2)
+        self.br = self.axBr.plot([], [], 'g-', lw=2)
+
         # 设定路径图长宽
         self.ax1.set_xlim(xmin, xmax)
         self.ax1.set_ylim(ymin, ymax)
@@ -115,12 +130,16 @@ class Graph():
          self.stdR_X_data, self.stdR_Y_data, self.X_data,
          self.Y_data, self.A_data, self.Speed_X_data,
          self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalSpeed_data,
-         self.Speed_Y_data, self.Speed_data, self.t_data) = ([], [], [],
-                                                             [], [], [],
-                                                             [], [], [],
-                                                             [], [], [],
-                                                             [], [], [],
-                                                             [], [], [])
+         self.Speed_Y_data, self.Speed_data, self.t_data,
+         self.optimalRotSpeed_data, self.flRot, self.frRot,
+         self.blRot, self.brRot, self.Rotation) = ([], [], [],
+                                                   [], [], [],
+                                                   [], [], [],
+                                                   [], [], [],
+                                                   [], [], [],
+                                                   [], [], [],
+                                                   [], [], [],
+                                                   [], [], [])
         self.timeNode = []
         # 打开文件
         with open(os.path.split(os.path.realpath(__file__))[0] +
@@ -146,6 +165,14 @@ class Graph():
         self.ax4.set_ylim(-3000, 3000)
         self.ax5.set_xlim(0, 50)
         self.ax5.set_ylim(0, 3000)
+        self.axFl.set_xlim(0, 50)
+        self.axFr.set_ylim(0, 44.8)
+        self.axFl.set_xlim(0, 50)
+        self.axFr.set_ylim(0, 44.8)
+        self.axBl.set_xlim(0, 50)
+        self.axBr.set_ylim(0, 44.8)
+        self.axBl.set_xlim(0, 50)
+        self.axBr.set_ylim(0, 44.8)
 
         self.fig.tight_layout()
 
@@ -153,23 +180,27 @@ class Graph():
         self.signalGain, self.bandwidth = signal.butter(5, 0.30, 'low')
         print(self.signalGain, self.bandwidth)
 
-    def speedCalculator(self, col_data, ver_data,
-                        colSpeed_data, verSpeed_data, speed_data):
+    def speedCalculator(self, col_data, ver_data, rot_data,
+                        colSpeed_data, verSpeed_data, rotSpeed_data,
+                        speed_data):
         if len(self.t_data) < 3:
-            colSpeed = verSpeed = speed = 0
-            return colSpeed, verSpeed, speed
+            colSpeed = verSpeed = rotSpeed = speed = 0
+            return colSpeed, verSpeed, rotSpeed, speed
         elif self.t_data[-1] - self.t_data[-2] == 0:
             colSpeed = colSpeed_data[-1]
             verSpeed = verSpeed_data[-1]
+            rotSpeed = rotSpeed_data[-1]
             speed = speed_data[-1]
-            return colSpeed, verSpeed, speed
+            return colSpeed, verSpeed, rotSpeed, speed
         else:
             colSpeed = ((col_data[-1] - col_data[-2]) /
                         (self.t_data[-1] - self.t_data[-2]))
             verSpeed = ((ver_data[-1] - ver_data[-2]) /
                         (self.t_data[-1] - self.t_data[-2]))
+            rotSpeed = ((rot_data[-1] - rot_data[-2]) /
+                        (self.t_data[-1] - self.t_data[-2]))
             speed = np.sqrt(colSpeed ** 2 + verSpeed ** 2)
-            return colSpeed, verSpeed, speed
+            return colSpeed, verSpeed, rotSpeed, speed
 
     def timeCount(self):
         if len(self.timeNode) != 0:
@@ -199,27 +230,42 @@ class Graph():
         self.lowPassSpeed_x.set_data([], [])
         self.lowPassSpeed_y.set_data([], [])
         self.lowPassSpeed.set_data([], [])
+        self.fl.set_data([], [])
+        self.fr.set_data([], [])
+        self.bl.set_data([], [])
+        self.br.set_data([], [])
 
         return (self.stdR_route, self.stdB_route, self.route,
                 self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y,
-                self.lowPassSpeed)
+                self.lowPassSpeed, self.fl, self.fr,
+                self.bl, self.br)
 
     def clear(self):
         (self.t_data, self.X_data, self.Y_data,
          self.A_data, self.Speed_X_data, self.Speed_Y_data,
          self.Speed_data, self.optimalColSpeed_data, self.optimalVerSpeed_data,
-         self.optimalSpeed_data, self.timeNode) = ([], [], [],
-                                                   [], [], [],
-                                                   [], [], [],
-                                                   [], [])
+         self.optimalRotSpeed_data, self.optimalSpeed_data, self.timeNode,
+         self.flRot, self.frRot, self.blRot,
+         self.brRot, self.Rotation) = ([], [], [],
+                                       [], [], [],
+                                       [], [], [],
+                                       [], [], [])
         self.ax2.set_ylim(0, 50)
         self.ax3.set_xlim(0, 50)
         self.ax4.set_xlim(0, 50)
         self.ax5.set_xlim(0, 50)
+        self.axFl.set_xlim(0, 50)
+        self.axFl.set_xlim(0, 50)
+        self.axBl.set_xlim(0, 50)
+        self.axBl.set_xlim(0, 50)
         self.ax2.figure.canvas.draw()
         self.ax3.figure.canvas.draw()
         self.ax4.figure.canvas.draw()
         self.ax5.figure.canvas.draw()
+        self.axFl.figure.canvas.draw()
+        self.axFl.figure.canvas.draw()
+        self.axBl.figure.canvas.draw()
+        self.axBl.figure.canvas.draw()
         self.init()
 
     def generator(self):      # 数据迭代器
@@ -251,21 +297,31 @@ class Graph():
                     self.encoder1, self.encoder2 = self.info[3], self.info[4]
                     (self.Speed_X,
                      self.Speed_Y,
+                     self.Speed_R,
                      self.Speed) = self.speedCalculator(self.X_data,
                                                         self.Y_data,
+                                                        self.A_data,
                                                         self.optimalColSpeed_data,
                                                         self.optimalVerSpeed_data,
+                                                        self.optimalRotSpeed_data,
                                                         self.optimalSpeed_data)
                     # self.kalmanFilter()
                     # self.optimalColSpeed, self.optimalVerSpeed, self.optimalSpeed = self.speedCalculator(self.optimalX_data, self.optimalY_data, self.optimalColSpeed_data, self.optimalVerSpeed_data, self.optimalVerSpeed_data)
+
+                    fl, fr, bl, br = mec_acc.set_speed(self.Speed_X, self.Speed_Y, self.Speed_R)
                     self.t_data.append(self.t)
                     self.X_data.append(self.X)
                     self.Y_data.append(self.Y)
                     self.A_data.append(self.A)
+                    self.flRot.append(fl)
+                    self.frRot.append(fr)
+                    self.blRot.append(bl)
+                    self.brRot.append(br)
                     self.encoder1_data.append(self.encoder1)
                     self.encoder2_data.append(self.encoder2)
                     self.Speed_X_data.append(self.Speed_X)
                     self.Speed_Y_data.append(self.Speed_Y)
+                    self.Rotation.append(self.Speed_R)
                     self.Speed_data.append(self.Speed)
 
                     # self.optimalX_data.append(self.optimalX)
@@ -273,6 +329,7 @@ class Graph():
                     if (len(self.t_data)) < 19:
                         self.optimalColSpeed_data = self.Speed_X_data
                         self.optimalVerSpeed_data = self.Speed_Y_data
+                        self.optimalRotSpeed_data = self.Rotation
                         self.optimalSpeed_data = self.Speed_data
                     else:
                         self.optimalColSpeed_data = signal.filtfilt(self.signalGain,
@@ -281,9 +338,13 @@ class Graph():
                         self.optimalVerSpeed_data = signal.filtfilt(self.signalGain,
                                                                     self.bandwidth,
                                                                     self.Speed_Y_data)
+                        # self.optimalRotSpeed_data = signal.filtfilt(self.signalGain,
+                        #                                             self.bandwidth,
+                        #                                             self.Rotation)
                         self.optimalSpeed_data = signal.filtfilt(self.signalGain,
                                                                  self.bandwidth,
                                                                  self.Speed_data)
+
                     # self.optimalColSpeed_data.append(self.optimalColSpeed)
                     # self.optimalVerSpeed_data.append(self.optimalVerSpeed)
                     # self.optimalSpeed_data.append(self.optimalSpeed)
@@ -301,31 +362,55 @@ class Graph():
                 self.ax3.set_xlim(self.min + 10, self.max + 10)
                 self.ax4.set_xlim(self.min + 10, self.max + 10)
                 self.ax5.set_xlim(self.min + 10, self.max + 10)
+                self.axFl.set_xlim(self.min + 10, self.max + 10)
+                self.axFl.set_xlim(self.min + 10, self.max + 10)
+                self.axBl.set_xlim(self.min + 10, self.max + 10)
+                self.axBl.set_xlim(self.min + 10, self.max + 10)
+
                 self.ax2.figure.canvas.draw()
                 self.ax3.figure.canvas.draw()
                 self.ax4.figure.canvas.draw()
                 self.ax5.figure.canvas.draw()
+                self.axFl.figure.canvas.draw()
+                self.axFl.figure.canvas.draw()
+                self.axBl.figure.canvas.draw()
+                self.axBl.figure.canvas.draw()
             else:
                 self.ax2.set_ylim(self.t//10*10, self.t//10*10 + 50)
                 self.ax3.set_xlim(self.t//10*10, self.t//10*10 + 50)
                 self.ax4.set_xlim(self.t//10*10, self.t//10*10 + 50)
                 self.ax5.set_xlim(self.t//10*10, self.t//10*10 + 50)
+                self.axFl.set_xlim(self.t//10*10, self.t//10*10 + 50)
+                self.axFl.set_xlim(self.t//10*10, self.t//10*10 + 50)
+                self.axBl.set_xlim(self.t//10*10, self.t//10*10 + 50)
+                self.axBl.set_xlim(self.t//10*10, self.t//10*10 + 50)
+
                 self.ax2.figure.canvas.draw()
                 self.ax3.figure.canvas.draw()
                 self.ax4.figure.canvas.draw()
                 self.ax5.figure.canvas.draw()
+                self.axFl.figure.canvas.draw()
+                self.axFl.figure.canvas.draw()
+                self.axBl.figure.canvas.draw()
+                self.axBl.figure.canvas.draw()
 
         self.route.set_data(self.X_data, self.Y_data)
         self.angle.set_data(self.A_data, self.t_data)
         # self.speed_x.set_data(self.t_data, self.Speed_X_data)
         # self.speed_y.set_data(self.t_data, self.Speed_Y_data)
         # self.speed.set_data(self.t_data, self.Speed_data)
+        self.fl.set_data(self.t_data, self.flRot)
+        self.fr.set_data(self.t_data, self.frRot)
+        self.bl.set_data(self.t_data, self.blRot)
+        self.br.set_data(self.t_data, self.brRot)
 
         self.lowPassSpeed_x.set_data(self.t_data, self.optimalColSpeed_data)
         self.lowPassSpeed_y.set_data(self.t_data, self.optimalVerSpeed_data)
         self.lowPassSpeed.set_data(self.t_data, self.optimalSpeed_data)
 
-        return self.route, self.angle, self.lowPassSpeed_x, self.lowPassSpeed_y, self.lowPassSpeed  #, self.Angle_display, self.Speed_X_display, self.Speed_Y_display, self.Speed_display
+        return (self.route, self.angle, self.lowPassSpeed_x,
+                self.lowPassSpeed_y, self.lowPassSpeed, self.fl,
+                self.fr, self.bl, self.br)
 
     def animationInit(self):
         try:
@@ -379,7 +464,7 @@ class GUIsetting(QtWidgets.QMainWindow):        #建立GUI设置类（以Qt5为�
         self.vBox = QtWidgets.QVBoxLayout(self.main_widget)
         self.vBox.addStretch(1)
 
-        self.graph = Graph(width=20, height=10, dpi=80)
+        self.graph = Graph(width=20, height=15, dpi=80)
         self.canvas = FigureCanvasQTAgg(self.graph.fig)
         self.toolbar = NavigationToolbar2QT(self.canvas, self)
         self.vBox.addWidget(self.canvas)
@@ -797,3 +882,15 @@ if __name__ == '__main__':
 #      cart.                                         #
 #                                                    #
 #---------------------2016.4.2-----------------------#
+
+#-----------------------journal----------------------#
+# updata:                                            #
+#   1. Add 4 plots for four wheel rotation.          #
+#   2. completed save function(auto generate its     #
+#      name)                                         #
+#                                                    #
+# blueprint:                                         #
+#   Same as one above                                #
+#                                                    #
+#---------------------2016.4.12----------------------#
+#
