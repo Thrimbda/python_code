@@ -1,7 +1,7 @@
 import numpy as np
 import mec_acc
 
-filename = '/home/michael/Documents/python_code/RPi_and_BigMonster/Computer/encoder4.12_19:08(speed1.1).txt'
+filename = '/media/michael/Macsnow/point0411.txt'
 
 data = []
 xData = []

@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-12 21:22:29
+# @Last Modified time: 2016-04-14 19:55:51
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -21,7 +21,7 @@ import serial       #串口模块
 import os.path
 import platform
 import struct
-import threading
+# import threading
 import time
 
 pf = platform.system()      #识别当前工作环境
@@ -116,10 +116,10 @@ class Graph():
         self.lowPassSpeed_y, = self.ax4.plot([], [], 'g-', lw=2)
         self.lowPassSpeed, = self.ax5.plot([], [], 'g-', lw=2)
 
-        self.fl = self.axFl.plot([], [], 'g-', lw=2)
-        self.fr = self.axFr.plot([], [], 'g-', lw=2)
-        self.bl = self.axBl.plot([], [], 'g-', lw=2)
-        self.br = self.axBr.plot([], [], 'g-', lw=2)
+        self.fl, = self.axFl.plot([], [], 'g-', lw=2)
+        self.fr, = self.axFr.plot([], [], 'g-', lw=2)
+        self.bl, = self.axBl.plot([], [], 'g-', lw=2)
+        self.br, = self.axBr.plot([], [], 'g-', lw=2)
 
         # 设定路径图长宽
         self.ax1.set_xlim(xmin, xmax)
@@ -893,4 +893,3 @@ if __name__ == '__main__':
 #   Same as one above                                #
 #                                                    #
 #---------------------2016.4.12----------------------#
-#
