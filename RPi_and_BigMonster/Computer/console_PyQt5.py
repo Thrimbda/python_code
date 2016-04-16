@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-02-16 16:36:30
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-14 19:55:51
+# @Last Modified time: 2016-04-14 20:42:29
 import matplotlib       #绘图库
 matplotlib.use('Qt5Agg')        #qt5接口声明
 from PyQt5 import QtGui, QtCore, QtWidgets      #qt
@@ -166,13 +166,13 @@ class Graph():
         self.ax5.set_xlim(0, 50)
         self.ax5.set_ylim(0, 3000)
         self.axFl.set_xlim(0, 50)
-        self.axFr.set_ylim(0, 44.8)
-        self.axFl.set_xlim(0, 50)
-        self.axFr.set_ylim(0, 44.8)
+        self.axFl.set_ylim(-44.8, 44.8)
+        self.axFr.set_xlim(0, 50)
+        self.axFr.set_ylim(-44.8, 44.8)
         self.axBl.set_xlim(0, 50)
-        self.axBr.set_ylim(0, 44.8)
-        self.axBl.set_xlim(0, 50)
-        self.axBr.set_ylim(0, 44.8)
+        self.axBl.set_ylim(-44.8, 44.8)
+        self.axBr.set_xlim(0, 50)
+        self.axBr.set_ylim(-44.8, 44.8)
 
         self.fig.tight_layout()
 
@@ -363,18 +363,18 @@ class Graph():
                 self.ax4.set_xlim(self.min + 10, self.max + 10)
                 self.ax5.set_xlim(self.min + 10, self.max + 10)
                 self.axFl.set_xlim(self.min + 10, self.max + 10)
-                self.axFl.set_xlim(self.min + 10, self.max + 10)
+                self.axFr.set_xlim(self.min + 10, self.max + 10)
                 self.axBl.set_xlim(self.min + 10, self.max + 10)
-                self.axBl.set_xlim(self.min + 10, self.max + 10)
+                self.axBr.set_xlim(self.min + 10, self.max + 10)
 
                 self.ax2.figure.canvas.draw()
                 self.ax3.figure.canvas.draw()
                 self.ax4.figure.canvas.draw()
                 self.ax5.figure.canvas.draw()
                 self.axFl.figure.canvas.draw()
-                self.axFl.figure.canvas.draw()
+                self.axFr.figure.canvas.draw()
                 self.axBl.figure.canvas.draw()
-                self.axBl.figure.canvas.draw()
+                self.axBr.figure.canvas.draw()
             else:
                 self.ax2.set_ylim(self.t//10*10, self.t//10*10 + 50)
                 self.ax3.set_xlim(self.t//10*10, self.t//10*10 + 50)

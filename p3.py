@@ -1,6 +1,14 @@
 import serial
 
-ser = serial.Serial("/dev/ttyUSB1", 115200)
+ser = serial.Serial("/dev/ttyUSB0", 115200)
+data = []
+i = 0
 
-while True:
-    print(ser.readline())
+try:
+    while True:
+        data.append(ser.readline())
+        print(data[i])
+except KeyboardInterrupt:
+    with open('/home/michael/Documents/temp/data.txt', 'w') as fobj:
+        for i in data:
+            fobj.write(i)
