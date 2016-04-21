@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-03-12 14:04:14
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-03-12 15:54:33
+# @Last Modified time: 2016-04-21 01:58:05
 
 
 class Solution(object):
@@ -23,6 +23,11 @@ class Solution(object):
                 hashTable[listI] = res
             else:
                 hashTable[listI] = [i]
-        res = hashTable.values()
+        res = list(hashTable.values())
         res.sort()
         return(res)
+
+if __name__ == '__main__':
+    a = ['tea', 'ate', 'aet', 'break', 'baerk']
+    b = Solution()
+    print(b.groupAnagrams(a))
