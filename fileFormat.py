@@ -2,6 +2,14 @@ import numpy as np
 
 
 class FileFomate():
+    """my fomate script.
+
+    fomate files into specific type.
+
+    Variables:
+        ff.encoderFmt() {[none]} -- [for matlab]
+        ff.pointRouteFmt() {[none]} -- [for myConsole]
+    """
     def __init__(self, rfileName, wfileName, startLine=0, endLine=-1):
         try:
             self.rfileobj = open(rfileName, 'r', encoding="gb2312")
