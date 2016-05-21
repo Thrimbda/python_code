@@ -2,15 +2,9 @@
 # @Author: Macpotty
 # @Date:   2016-03-25 00:03:29
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-21 21:58:12
+# @Last Modified time: 2016-05-16 21:35:44
 import numpy as np
 import matplotlib.pyplot as plt
-
-fileName = "/home/michael/Documents/Data/javaFibonacci.txt"
-
-data = []
-data.append(np.loadtxt(fileName, delimiter="\n"))
-ticks = np.arange(len(data[0]))
 
 
 def Histogram(data, yLabel, xLabel, ticks, title, plotNum=1):
@@ -40,6 +34,11 @@ def Histogram(data, yLabel, xLabel, ticks, title, plotNum=1):
     # plt.draw()
 
 if __name__ == '__main__':
+    fileName = "/home/michael/Documents/Data/javaFibonacci.txt"
+
+    data = []
+    data.append(np.loadtxt(fileName, delimiter="\n"))
+    ticks = np.arange(len(data[0]))
     fig = Histogram(data, 'time(ms)', 'magnitude(10^x)',
                     ticks, 'Select num index from disordered array')
     plt.show()

@@ -2,21 +2,40 @@
 # @Author: Macpotty
 # @Date:   2016-04-19 17:12:04
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-04-21 00:03:42
+# @Last Modified time: 2016-05-21 19:49:26
 import urllib.request
 import urllib
-import os
+# import os
+import re
+from collections import deque
 
 
-data = {}
-data['word'] = 'node.js'
+queue = deque()
+visited = set()
 
-url_values = urllib.parse.urlencode(data)
-url = 'http://www.baidu.com/s?'
-full_url = url + url_values
+url = 'https://www.douban.com/'
 
-data = urllib.request.urlopen(full_url).read()
-data = data.decode('utf8')
-print(data)
-with open(os.path.split(os.path.realpath(__file__))[0]+'/myTest.txt', 'w') as fobj:
-    fobj.write(data)
+queue.append(url)
+cnt = 0
+
+while queue:
+    url = queue.popleft()
+    visited |= {url}
+
+    print('already grabed:' + str(cnt) + '    grabing <---  ' + url)
+    cnt += 1
+    urlop = urllib.request.urlopen(url, timeout=2)
+    if 'html' not in urlop.getheader('Content-Type'):
+        continue
+
+    try:
+        data = urlop.read().decode('utf-8')
+    except Exception as e:
+        print(e)
+        continue
+
+    linkre = re.compile('href="(.+?)"')
+    for x in linkre.findall(data):
+        if 'http' in x and x not in visited:
+            queue.append(x)
+            print('appended queue --->' + x)
