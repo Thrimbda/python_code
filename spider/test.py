@@ -2,7 +2,7 @@
 # @Author: Macpotty
 # @Date:   2016-04-19 17:12:04
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-05-22 15:55:17
+# @Last Modified time: 2016-05-24 16:16:45
 import urllib.request
 import urllib
 import socket
@@ -40,7 +40,7 @@ queue = deque()
 visited = set()
 opener = myOpener()
 
-url = 'http://www.douban.com/'
+url = 'https://www.douban.com/'
 
 queue.append(url)
 cnt = 0
@@ -67,12 +67,17 @@ while queue:
     if 'html' not in urlop.getheader('Content-Type'):
         continue
 
-    # try:
-    data = urlop.read().decode('utf-8')
-    data = unzip(data)
-    # except Exception as e:
-    #     print(e)
-    #     continue
+    try:
+        data = urlop.read().decode('utf-8')
+        data = unzip(data)
+    except socket.timeout:
+        continue
+    except urllib.error.URLError as e:
+        print(e)
+        continue
+    if len(re.compile('AnonymousUser').findall(data)) != 0:
+        print(url)
+        break
 
     linkre = re.compile('href="(.+?)"')
     for x in linkre.findall(data):
