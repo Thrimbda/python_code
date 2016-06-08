@@ -2,11 +2,11 @@
 # @Author: Macpotty
 # @Date:   2016-05-22 15:35:19
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-06-04 21:30:28
+# @Last Modified time: 2016-06-07 16:01:50
 import requests
 from bs4 import BeautifulSoup
 from collections import deque
-import FileModel
+import FileModule
 import traceback
 
 
@@ -33,7 +33,7 @@ class Spider:
         self.cnt = 0
         self.fobj = None
         if record:
-            self.fileModel = FileModel.FileModel()
+            self.FileModule = FileModule.FileModule()
 
     def postForm(self, process=None, autoCollect=True, judgeCondition='', **payload):
         if judgeCondition != '' and judgeCondition not in self.soup.body.text:
@@ -103,7 +103,7 @@ class Spider:
             else:
                 print('done!')
         if self.fobj is not None:
-            self.fileModel.fileEnd()
+            self.FileModule.fileEnd()
 
     def teachingAssess(self, token, assessGrade=[1, 1, 1, 1, 2]):
         """this function is very XJTUic.
@@ -148,13 +148,14 @@ class Spider:
 
 if __name__ == '__main__':
     try:
-        mySpider = Spider('https://cas.xjtu.edu.cn/login?service=http%3A%2F%2Fssfw.xjtu.edu.cn%2Findex.portal')
-        mySpider.postForm(username='', password='')
+        mySpider = Spider('https://www.zhihu.com/#signin')
+        mySpider.postForm(acount='645092284@qq.com', password='960627Oo')
         # mySpider.urls.append('http://ssfw.xjtu.edu.cn/index.portal?.pn=p1142_p1182_p1183')
         # mySpider.mainCtl()
-        mySpider.getSite('http://ssfw.xjtu.edu.cn/index.portal?.pn=p1142_p1182_p1183')
+        # mySpider.getSite('http://ssfw.xjtu.edu.cn/index.portal?.pn=p1142_p1182_p1183')
+        # print(mySpider.soup.body.text)
+        mySpider.refresh()
         print(mySpider.soup.body.text)
-
         # print(mySpider.soup.body)
     except requests.HTTPError as e:
         print(e)
