@@ -3,7 +3,7 @@
 # @Author: Macpotty
 # @Date:   2016-05-28 23:46:45
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-06-07 16:00:08
+# @Last Modified time: 2016-06-08 21:21:36
 
 
 class FileModule:
@@ -13,6 +13,7 @@ class FileModule:
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <title>spiderInfo</title>
     </head>
     <body>""")
 
