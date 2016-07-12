@@ -7,7 +7,7 @@
 import socket
 import time
 
-serverName = '120.27.97.44'
+serverName = '192.168.0.136'
 serverPort = 12001
 clienSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 clienSocket.connect((serverName, serverPort))
