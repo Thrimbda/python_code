@@ -2,12 +2,13 @@
 # @Author: Macpotty
 # @Date:   2016-05-22 15:35:19
 # @Last Modified by:   Macpotty
-# @Last Modified time: 2016-06-07 16:01:50
+# @Last Modified time: 2016-07-25 17:58:13
 import requests
 from bs4 import BeautifulSoup
 from collections import deque
 import FileModule
 import traceback
+import time
 
 
 class Spider:
@@ -148,14 +149,19 @@ class Spider:
 
 if __name__ == '__main__':
     try:
-        mySpider = Spider('https://www.zhihu.com/#signin')
-        mySpider.postForm(acount='645092284@qq.com', password='960627Oo')
+        mySpider = Spider('https://cas.xjtu.edu.cn/login?service=http%3A%2F%2Fssfw.xjtu.edu.cn%2Findex.portal')
+        mySpider.postForm(username='siyuan.mac', password='960627Xc!')
         # mySpider.urls.append('http://ssfw.xjtu.edu.cn/index.portal?.pn=p1142_p1182_p1183')
         # mySpider.mainCtl()
-        # mySpider.getSite('http://ssfw.xjtu.edu.cn/index.portal?.pn=p1142_p1182_p1183')
-        # print(mySpider.soup.body.text)
+        mySpider.getSite("http://ssfw.xjtu.edu.cn/index.portal?ticket=ST-202218-qcHC3XPCgOQj9n5eCJHD-gdscas01")
+        mySpider.getSite("http://ssfw.xjtu.edu.cn/index.portal?ticket=ST-202254-LB3IUMf9ceYuD6ooiP6X-gdscas01")
+        time.sleep(6)
+        mySpider.refresh()
+        mySpider.getSite('http://ssfw.xjtu.edu.cn/pnull.portal?.pen=pe801&.f=f1821&action=print&executeName=print&xnxqdm=20161&newSearch=true')
         mySpider.refresh()
         print(mySpider.soup.body.text)
+        # mySpider.refresh()
+        # print(mySpider.soup.body.text)
         # print(mySpider.soup.body)
     except requests.HTTPError as e:
         print(e)
