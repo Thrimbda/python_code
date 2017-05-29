@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-07-07 20:02:56
-# @Last Modified by:   Macpotty
-# @Last Modified time: 2016-07-07 20:44:14
+# @Last Modified by:   Macsnow
+# @Last Modified time: 2017-04-24 16:13:45
 import socket
 import time
 
@@ -18,4 +18,3 @@ modifiedSentence = clienSocket.recv(1024).decode()
 timeStamp  = time.time() - timeStamp
 print('From server:%s\n' % modifiedSentence, 'Transport using:%.4f' % timeStamp)
 clienSocket.close()
-

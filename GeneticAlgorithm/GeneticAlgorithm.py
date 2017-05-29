@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # @Author: Macpotty
 # @Date:   2016-03-12 09:58:53
-# @Last Modified by:   Macpotty
-# @Last Modified time: 2016-07-21 16:15:37
+# @Last Modified by:   Macsnow
+# @Last Modified time: 2017-04-01 08:58:22
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -10,7 +10,7 @@ import copy
 
 # V = np.arange(10)
 # E = np.random.randint(1, 50, size=[10, 10])
-sizePop = 50
+sizePop = 15
 
 V = list(zip(np.random.random(sizePop)*100, np.random.random(sizePop)*100))
 E = np.zeros([sizePop, sizePop])

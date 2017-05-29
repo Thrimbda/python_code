@@ -1,4 +1,5 @@
 # python_code
-##this is just a practice for Python lauguage
 
-##but still thank you for visit this small page~
+>my python learning repo. full of juck codes, also my heart.
+
+old code never die, they just fade away.
